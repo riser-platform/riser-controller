@@ -1,0 +1,8 @@
+apiVersion: v1
+data:
+  RISER_SERVER_URL: http://riser-server.riser-system.svc.cluster.local
+  RISER_STAGE: demo
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: riser-controller
