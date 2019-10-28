@@ -53,7 +53,7 @@ var rolloutTests = []struct {
 		},
 		expected: RolloutStatus{
 			Status: model.RolloutStatusInProgress,
-			Reason: "Waiting for rollout to finish: 1 out of 3 new replicas have been updated...",
+			Reason: "1/3 new replicas have been updated",
 		},
 	},
 	{
@@ -69,7 +69,7 @@ var rolloutTests = []struct {
 		},
 		expected: RolloutStatus{
 			Status: model.RolloutStatusInProgress,
-			Reason: "Waiting for rollout to finish: 1 old replicas are pending termination...",
+			Reason: "1 old replicas are pending termination",
 		},
 	},
 	{
@@ -85,7 +85,7 @@ var rolloutTests = []struct {
 		},
 		expected: RolloutStatus{
 			Status: model.RolloutStatusInProgress,
-			Reason: "Waiting for rollout to finish: 2 of 3 updated replicas are available...",
+			Reason: "2/3 updated replicas are available",
 		},
 	},
 	{
@@ -117,7 +117,7 @@ var rolloutTests = []struct {
 		},
 		expected: RolloutStatus{
 			Status: model.RolloutStatusInProgress,
-			Reason: "Waiting for deployment details...",
+			Reason: "Waiting for deployment details",
 		},
 	},
 }

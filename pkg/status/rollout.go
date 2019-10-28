@@ -54,19 +54,19 @@ func GetRolloutStatus(deployment *appsv1.Deployment) RolloutStatus {
 		if deployment.Spec.Replicas != nil && deployment.Status.UpdatedReplicas < *deployment.Spec.Replicas {
 			return RolloutStatus{
 				Status: model.RolloutStatusInProgress,
-				Reason: fmt.Sprintf("Waiting for rollout to finish: %d out of %d new replicas have been updated...", deployment.Status.UpdatedReplicas, *deployment.Spec.Replicas),
+				Reason: fmt.Sprintf("%d/%d new replicas have been updated", deployment.Status.UpdatedReplicas, *deployment.Spec.Replicas),
 			}
 		}
 		if deployment.Status.Replicas > deployment.Status.UpdatedReplicas {
 			return RolloutStatus{
 				Status: model.RolloutStatusInProgress,
-				Reason: fmt.Sprintf("Waiting for rollout to finish: %d old replicas are pending termination...", deployment.Status.Replicas-deployment.Status.UpdatedReplicas),
+				Reason: fmt.Sprintf("%d old replicas are pending termination", deployment.Status.Replicas-deployment.Status.UpdatedReplicas),
 			}
 		}
 		if deployment.Status.AvailableReplicas < deployment.Status.UpdatedReplicas {
 			return RolloutStatus{
 				Status: model.RolloutStatusInProgress,
-				Reason: fmt.Sprintf("Waiting for rollout to finish: %d of %d updated replicas are available...", deployment.Status.AvailableReplicas, deployment.Status.UpdatedReplicas),
+				Reason: fmt.Sprintf("%d/%d updated replicas are available", deployment.Status.AvailableReplicas, deployment.Status.UpdatedReplicas),
 			}
 		}
 		return RolloutStatus{
@@ -76,7 +76,7 @@ func GetRolloutStatus(deployment *appsv1.Deployment) RolloutStatus {
 	}
 	return RolloutStatus{
 		Status: model.RolloutStatusInProgress,
-		Reason: fmt.Sprintf("Waiting for deployment details..."),
+		Reason: fmt.Sprintf("Waiting for deployment details"),
 	}
 }
 
