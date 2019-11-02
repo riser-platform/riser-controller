@@ -41,14 +41,10 @@ func (r *PodReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
-	_, isRiserApp := pod.Labels[RiserAppLabel]
-	if isRiserApp {
+	if isRiserApp(pod.ObjectMeta) {
 		log.Info("Pod reconcile", "pod", pod.Name, "namespace", pod.Namespace)
 		deployments := &appsv1.DeploymentList{}
-		labels := map[string]string{
-			"deployment": pod.Labels["deployment"],
-		}
-		err := r.List(context.Background(), deployments, client.InNamespace(pod.Namespace), client.MatchingLabels(labels))
+		err := r.List(context.Background(), deployments, client.InNamespace(pod.Namespace), riserAppFilter(pod.ObjectMeta))
 		if err != nil {
 			log.Error(err, "Error fetching deployment for pod")
 			return ctrl.Result{}, err
@@ -60,12 +56,11 @@ func (r *PodReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}
 
 		deployment := deployments.Items[0]
-		deployment.Annotations["riser-trigger-hack"] = fmt.Sprint(time.Now().Unix())
+		deployment.Annotations[riserLabel("controller-observed")] = fmt.Sprint(time.Now().Unix())
 		err = r.Update(ctx, &deployment)
 		if err != nil {
 			log.Error(err, "Error updating deployment", "deployment", deployment.Name)
 		}
-		log.Info("Deployment for pod found", "deployment", deployment.Name, "pod", pod.Name, "namespace", pod.Namespace)
 	}
 
 	return ctrl.Result{}, nil
@@ -74,7 +69,7 @@ func (r *PodReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 func (r *PodReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&corev1.Pod{}).
-		// If a pod is deleted or created there's no need to trigger as the deployment reconcilation will be triggerd
+		// If a pod is deleted or created there's no need to trigger as the deployment reconciliation will be triggerred
 		WithEventFilter(predicate.Funcs{
 			CreateFunc: func(event.CreateEvent) bool {
 				return false

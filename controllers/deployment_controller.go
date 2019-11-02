@@ -35,8 +35,6 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 )
 
-const RiserAppLabel = "riser-app"
-
 // DeploymentReconciler reconciles a Deployment object
 type DeploymentReconciler struct {
 	client.Client
@@ -61,8 +59,7 @@ func (r *DeploymentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 		return ctrl.Result{}, err
 	}
 
-	_, isRiserApp := deployment.Labels[RiserAppLabel]
-	if isRiserApp {
+	if isRiserApp(deployment.ObjectMeta) {
 		pods, err := r.getPodsForDeployment(deployment)
 		if err != nil {
 			log.Error(err, "Unable to get pods for deployment")
@@ -74,9 +71,9 @@ func (r *DeploymentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 
 		revision, _ := strconv.ParseInt(deployment.Annotations["deployment.kubernetes.io/revision"], 10, 64)
 		status := &model.DeploymentStatus{
-			AppName:             deployment.Labels["app"],
-			DeploymentName:      deployment.Labels["deployment"],
-			StageName:           deployment.Labels["stage"],
+			AppName:             deployment.Labels[riserLabel("app")],
+			DeploymentName:      deployment.Labels[riserLabel("deployment")],
+			StageName:           deployment.Labels[riserLabel("stage")],
 			RolloutStatus:       rolloutStatus.Status,
 			RolloutStatusReason: rolloutStatus.Reason,
 			RolloutRevision:     revision,
@@ -98,11 +95,8 @@ func (r *DeploymentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 }
 
 func (r *DeploymentReconciler) getPodsForDeployment(deployment *appsv1.Deployment) (*corev1.PodList, error) {
-	labels := map[string]string{
-		"deployment": deployment.Labels["deployment"],
-	}
 	pods := &corev1.PodList{}
-	err := r.List(context.Background(), pods, client.InNamespace(deployment.Namespace), client.MatchingLabels(labels))
+	err := r.List(context.Background(), pods, client.InNamespace(deployment.Namespace), riserAppFilter(deployment.ObjectMeta))
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing pods")
 	}

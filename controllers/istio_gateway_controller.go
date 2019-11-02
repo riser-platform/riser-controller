@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"riser-controller/pkg/runtime"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -72,6 +73,7 @@ func (r *IstioGatewayReconciler) setStageConfig(publicGatewayHost string) {
 		r.Log.Error(err, "Error setting stage config, retrying...")
 		// Hack: Need to figure out how to use the reconcile pattern as we do with structured resources so we can requeue correctly
 		// TODO: Remove recursive call
+		time.Sleep(3 * time.Second)
 		r.setStageConfig(publicGatewayHost)
 	}
 }
