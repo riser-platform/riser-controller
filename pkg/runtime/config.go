@@ -13,4 +13,5 @@ type Config struct {
 	SealedsecretControllerName      string `split_words:"true" default:"sealed-secrets-controller"`
 	SealedsecretNamespace           string `split_words:"true" default:"kube-system"`
 	SealedsecretCertRefreshDuration string `split_words:"true" default:"24h"`
+	KNativeEnabled                  bool   `envconfig:"knative_enabled" default:"false"`
 }

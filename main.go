@@ -82,6 +82,11 @@ func main() {
 	err = envconfig.Process(envPrefix, &rc)
 	exitIfError(err, "Error loading environment variables")
 
+	if rc.KNativeEnabled {
+		ctrl.Log.Info("KNative Enabled")
+		// TODO: Updates stage config
+	}
+
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
 		MetricsBindAddress: metricsAddr,
