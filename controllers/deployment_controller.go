@@ -70,10 +70,7 @@ func (r *DeploymentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 		problems := status.GetPodProblems(pods)
 
 		revision, _ := strconv.ParseInt(deployment.Annotations["deployment.kubernetes.io/revision"], 10, 64)
-		status := &model.DeploymentStatus{
-			AppName:             deployment.Labels[riserLabel("app")],
-			DeploymentName:      deployment.Labels[riserLabel("deployment")],
-			StageName:           deployment.Labels[riserLabel("stage")],
+		status := &model.DeploymentStatusMutable{
 			RolloutStatus:       rolloutStatus.Status,
 			RolloutStatusReason: rolloutStatus.Reason,
 			RolloutRevision:     revision,
@@ -81,7 +78,7 @@ func (r *DeploymentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 			Problems:            problems.Items(),
 		}
 
-		err = r.RiserClient.Status.Save(status)
+		err = r.RiserClient.Deployments.SaveStatus(deployment.Labels[riserLabel("deployment")], deployment.Labels[riserLabel("stage")], status)
 		if err != nil {
 			log.Error(err, "Unable to update status")
 			return ctrl.Result{Requeue: true}, err
