@@ -117,10 +117,10 @@ github.com/prometheus/common v0.0.0-20180801064454-c7de2306084e h1:n/3MEhJQjQxrO
 github.com/prometheus/common v0.0.0-20180801064454-c7de2306084e/go.mod h1:daVV7qP5qjZbuso7PdcryaAu0sAZbrN9i7WWcTMWvro=
 github.com/prometheus/procfs v0.0.0-20180725123919-05ee40e3a273 h1:agujYaXJSxSo18YNX3jzl+4G6Bstwt+kqv47GS12uL0=
 github.com/prometheus/procfs v0.0.0-20180725123919-05ee40e3a273/go.mod h1:c3At6R/oaqEKCNdg8wHV1ftS6bRYblBhIjjI8uT2IGk=
-github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191104153455-93fb7d7070d2 h1:1sdogkEBQMBWzRGyvgTUJeKhDo9D4t4f27d0/oUx1dY=
-github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191104153455-93fb7d7070d2/go.mod h1:Q5LMRqsqxdCPygU9c1vGyAdQtzqFbJN1B//ojv0fwrU=
-github.com/riser-platform/riser/sdk v0.0.0-20191104155518-e7f41d859d58 h1:HzIdiT/JmKns21vnir36YfcjatSA1+D28XhalgpCH2Y=
-github.com/riser-platform/riser/sdk v0.0.0-20191104155518-e7f41d859d58/go.mod h1:Vfb7ZLkHSV/d3sbW23taFyARY6/jXshPGkS4aFGOhpI=
+github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191107071634-7d369727ca66 h1:vY4WayeC5jReIE+3ztBmZuc+S1ozezRGDLHBg0nM1bA=
+github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191107071634-7d369727ca66/go.mod h1:Q5LMRqsqxdCPygU9c1vGyAdQtzqFbJN1B//ojv0fwrU=
+github.com/riser-platform/riser/sdk v0.0.0-20191107072223-0e2f5da0daeb h1:cZLYZWX0SmuspCgMjg0JR1V78VVIofA06DSZEC/waAY=
+github.com/riser-platform/riser/sdk v0.0.0-20191107072223-0e2f5da0daeb/go.mod h1:MIefDPjqqS5M03blmPK6KzA+PikAiNzgKUumKTh2GQo=
 github.com/spf13/afero v1.2.2/go.mod h1:9ZxEEn6pIJ8Rxe320qSDBk6AsU0r9pR7Q4OcevTdifk=
 github.com/spf13/pflag v1.0.2 h1:Fy0orTDgHdbnzHcsOgfCN4LtHf0ec3wwtiwJqwvf3Gc=
 github.com/spf13/pflag v1.0.2/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=

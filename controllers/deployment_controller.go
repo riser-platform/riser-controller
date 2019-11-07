@@ -17,7 +17,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"riser-controller/pkg/runtime"
 	"riser-controller/pkg/status"
 	"strconv"
@@ -70,12 +69,14 @@ func (r *DeploymentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 		problems := status.GetPodProblems(pods)
 
 		revision, _ := strconv.ParseInt(deployment.Annotations["deployment.kubernetes.io/revision"], 10, 64)
+		riserGeneration, _ := strconv.ParseInt(deployment.Annotations[riserLabel("generation")], 10, 64)
 		status := &model.DeploymentStatusMutable{
-			RolloutStatus:       rolloutStatus.Status,
-			RolloutStatusReason: rolloutStatus.Reason,
-			RolloutRevision:     revision,
-			DockerImage:         getAppDockerImage(deployment),
-			Problems:            problems.Items(),
+			ObservedRiserGeneration: riserGeneration,
+			RolloutStatus:           rolloutStatus.Status,
+			RolloutStatusReason:     rolloutStatus.Reason,
+			RolloutRevision:         revision,
+			DockerImage:             getAppDockerImage(deployment),
+			Problems:                problems.Items(),
 		}
 
 		err = r.RiserClient.Deployments.SaveStatus(deployment.Labels[riserLabel("deployment")], deployment.Labels[riserLabel("stage")], status)
@@ -83,7 +84,7 @@ func (r *DeploymentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 			log.Error(err, "Unable to update status")
 			return ctrl.Result{Requeue: true}, err
 		} else {
-			log.Info(fmt.Sprintf("Updated status for %s", req.NamespacedName))
+			log.Info("Updated status", "riserGeneration", riserGeneration)
 		}
 
 	}

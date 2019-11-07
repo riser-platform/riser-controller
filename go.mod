@@ -20,8 +20,8 @@ require (
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/pkg/errors v0.8.1
-	github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191104153455-93fb7d7070d2
-	github.com/riser-platform/riser/sdk v0.0.0-20191104155518-e7f41d859d58
+	github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191107071634-7d369727ca66
+	github.com/riser-platform/riser/sdk v0.0.0-20191107072223-0e2f5da0daeb
 	github.com/spf13/pflag v1.0.3 // indirect
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472 // indirect
@@ -29,7 +29,7 @@ require (
 	golang.org/x/sys v0.0.0-20190830080133-08d80c9d36de // indirect
 	google.golang.org/appengine v1.6.1 // indirect
 	k8s.io/api v0.0.0-20190830074751-c43c3e1d5a79
-	k8s.io/apimachinery v0.0.0-20191102025618-50aa20a7b23f
+	k8s.io/apimachinery v0.0.0-20191107025710-670e6d490571
 	k8s.io/client-go v11.0.1-0.20190409021438-1a26190bd76a+incompatible
 	k8s.io/klog v1.0.0 // indirect
 	sigs.k8s.io/controller-runtime v0.2.1
