@@ -13,7 +13,7 @@ jobs:
         go-version: 1.13
       id: go
 
-    - name: Check out code into the Go module directory
+    - name: Check out code
       uses: actions/checkout@v1
 
     - name: Get dependencies
@@ -26,3 +26,18 @@ jobs:
 
     - name: Test
       run: go test ./...
+
+  release:
+    needs: build
+    if: contains(github.ref, 'refs/tags/v')
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v1
+      - uses: jerray/publish-docker-action@v1.0.3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: riserplatform/riser-controller
+          auto_tag: true
