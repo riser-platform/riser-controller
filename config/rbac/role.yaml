@@ -34,4 +34,14 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - serving.knative.dev
+  resources:
+  - services
+  - revisions
+  - routes
+  verbs:
+  - get
+  - list
+  - watch
 
