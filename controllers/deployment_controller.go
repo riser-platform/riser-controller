@@ -34,6 +34,8 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 )
 
+// TODO: Nuke this for knative
+
 // DeploymentReconciler reconciles a Deployment object
 type DeploymentReconciler struct {
 	client.Client
@@ -65,18 +67,18 @@ func (r *DeploymentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 			return ctrl.Result{}, err
 		}
 
-		rolloutStatus := status.GetRolloutStatus(deployment)
+		// rolloutStatus := status.GetRolloutStatus(deployment)
 		problems := status.GetPodProblems(pods)
 
-		revision, _ := strconv.ParseInt(deployment.Annotations["deployment.kubernetes.io/revision"], 10, 64)
+		// revision, _ := strconv.ParseInt(deployment.Annotations["deployment.kubernetes.io/revision"], 10, 64)
 		riserGeneration, _ := strconv.ParseInt(deployment.Annotations[riserLabel("generation")], 10, 64)
 		status := &model.DeploymentStatusMutable{
 			ObservedRiserGeneration: riserGeneration,
-			RolloutStatus:           rolloutStatus.Status,
-			RolloutStatusReason:     rolloutStatus.Reason,
-			RolloutRevision:         revision,
-			DockerImage:             getAppDockerImage(deployment),
-			Problems:                problems.Items(),
+			// RolloutStatus:           rolloutStatus.Status,
+			// RolloutStatusReason:     rolloutStatus.Reason,
+			// RolloutRevision:         revision,
+			// DockerImage:             getAppDockerImage(deployment),
+			Problems: problems.Items(),
 		}
 
 		err = r.RiserClient.Deployments.SaveStatus(deployment.Labels[riserLabel("deployment")], deployment.Labels[riserLabel("stage")], status)
@@ -102,14 +104,14 @@ func (r *DeploymentReconciler) getPodsForDeployment(deployment *appsv1.Deploymen
 	return pods, nil
 }
 
-func getAppDockerImage(deployment *appsv1.Deployment) string {
-	for _, container := range deployment.Spec.Template.Spec.Containers {
-		if container.Name == deployment.Name {
-			return container.Image
-		}
-	}
-	return "Unable to find app container"
-}
+// func getAppDockerImage(deployment *appsv1.Deployment) string {
+// 	for _, container := range deployment.Spec.Template.Spec.Containers {
+// 		if container.Name == deployment.Name {
+// 			return container.Image
+// 		}
+// 	}
+// 	return "Unable to find app container"
+// }
 
 func (r *DeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).

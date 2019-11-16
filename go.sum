@@ -108,6 +108,7 @@ github.com/google/gofuzz v0.0.0-20170612174753-24818f796faf h1:+RRA9JqSOZFfKrOeq
 github.com/google/gofuzz v0.0.0-20170612174753-24818f796faf/go.mod h1:HP5RmnzzSNb993RKQDq4+1A4ia9nllfqcQFTQJedwGI=
 github.com/google/gofuzz v1.0.0 h1:A8PeW59pxE9IoFRqBp37U+mSNaQoZ46F1f0f863XSXw=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
+github.com/google/martian v2.1.0+incompatible h1:/CP5g8u/VJHijgedC/Legn3BAbAaWPgecwXBIDzw5no=
 github.com/google/martian v2.1.0+incompatible/go.mod h1:9I4somxYTbIHy5NJKHRl3wXiIaQGbYVAs8BPL6v8lEs=
 github.com/google/pprof v0.0.0-20181206194817-3ea8567a2e57/go.mod h1:zfwlbNMJ+OItoe0UupaVj+oy1omPYYDuagoSzA8v9mc=
 github.com/google/pprof v0.0.0-20190515194954-54271f7e092f/go.mod h1:zfwlbNMJ+OItoe0UupaVj+oy1omPYYDuagoSzA8v9mc=
@@ -226,10 +227,12 @@ github.com/prometheus/procfs v0.0.0-20180725123919-05ee40e3a273/go.mod h1:c3At6R
 github.com/prometheus/procfs v0.0.0-20181204211112-1dc9a6cbc91a h1:9a8MnZMP0X2nLJdBg+pBmGgkJlSaKC2KaQmTCk1XDtE=
 github.com/prometheus/procfs v0.0.0-20181204211112-1dc9a6cbc91a/go.mod h1:c3At6R/oaqEKCNdg8wHV1ftS6bRYblBhIjjI8uT2IGk=
 github.com/remyoudompheng/bigfft v0.0.0-20170806203942-52369c62f446/go.mod h1:uYEyJGbgTkfkS4+E/PavXkNJcbFIpEtjt2B0KDQ5+9M=
-github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191113114704-5da99c8e2b9c h1:HCrIKM+zXH7M+es+QLxYiJGOIH/4pg9Fudf1/rdSdl8=
-github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191113114704-5da99c8e2b9c/go.mod h1:Q5LMRqsqxdCPygU9c1vGyAdQtzqFbJN1B//ojv0fwrU=
-github.com/riser-platform/riser/sdk v0.0.0-20191116082310-ef5deefbcb65 h1:1Mqc5HwF3UT6i9AQfHiTNwQOhunxU6zdPCRZlf43L3I=
-github.com/riser-platform/riser/sdk v0.0.0-20191116082310-ef5deefbcb65/go.mod h1:Ooq5xOqFSi9fQcmki4fvXTBtQ9BVNRrdG0CVoo7Cg34=
+github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191119104756-fb98402bd30f h1:nBCbrdAytVPnP/zPCW+JUNR6+t2mNWydxXqMmnHlGwI=
+github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191119104756-fb98402bd30f/go.mod h1:Q5LMRqsqxdCPygU9c1vGyAdQtzqFbJN1B//ojv0fwrU=
+github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191119113718-1a0c7c19002d h1:UcMz/yP2bCgJBLTGgbop4n29g67WG2mysbeTSCuiUN8=
+github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191119113718-1a0c7c19002d/go.mod h1:Q5LMRqsqxdCPygU9c1vGyAdQtzqFbJN1B//ojv0fwrU=
+github.com/riser-platform/riser/sdk v0.0.0-20191119104919-6b075175f29c h1:/hZhtNIPluSi2+MMV6XW2FDJs1FPk3zyIPflxzU5a9I=
+github.com/riser-platform/riser/sdk v0.0.0-20191119104919-6b075175f29c/go.mod h1:le9k0V+Ld7rCLxeY6HZczGY+vFX/SN0aFT3noa4Xd40=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/sclevine/spec v1.2.0/go.mod h1:W4J29eT/Kzv7/b9IWLB055Z+qvVC9vt0Arko24q7p+U=

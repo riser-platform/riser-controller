@@ -1,8 +1,6 @@
 package status
 
 import (
-	"fmt"
-
 	"github.com/riser-platform/riser-server/api/v1/model"
 
 	corev1 "k8s.io/api/core/v1"
@@ -53,7 +51,6 @@ func getPodProblems(pods *corev1.PodList, probes ...PodProblemProbe) *ProblemLis
 	podProblems := ProblemList{}
 	if pods != nil {
 		for _, pod := range pods.Items {
-			fmt.Printf("%+v", pod.GetOwnerReferences())
 			for _, probe := range probes {
 				problem := probe.GetProblem(&pod)
 				if problem != nil {
