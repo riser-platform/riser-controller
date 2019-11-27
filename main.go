@@ -33,7 +33,6 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/dynamic"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	knserving "knative.dev/serving/pkg/apis/serving/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -80,11 +79,6 @@ func main() {
 	err = envconfig.Process(envPrefix, &rc)
 	exitIfError(err, "Error loading environment variables")
 
-	if rc.KNativeEnabled {
-		ctrl.Log.Info("KNative Enabled")
-		// TODO: Updates stage config
-	}
-
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
 		MetricsBindAddress: metricsAddr,
@@ -114,39 +108,23 @@ func main() {
 		exitIfError(err, "Unable to start sealed secret cert refresher")
 	}
 
-	if rc.KNativeEnabled {
-		err = (&controllers.KNativeServiceReconciler{
-			Client:      mgr.GetClient(),
-			Log:         ctrl.Log.WithName("controllers").WithName("KNativeService"),
-			Config:      rc,
-			RiserClient: riserClient,
-		}).SetupWithManager(mgr)
-		exitIfError(err, "unable to create controller", "controller", "KNativeService")
-	} else {
-		err = (&controllers.IstioGatewayReconciler{
-			Log:           ctrl.Log.WithName("controllers").WithName("IstioGateway"),
-			Config:        rc,
-			RiserClient:   riserClient,
-			DynamicClient: dynamic.NewForConfigOrDie(ctrl.GetConfigOrDie()),
-		}).SetupAndStart()
-		exitIfError(err, "unable to create controller", "controller", "IstioGateway")
+	err = (&controllers.KNativeServiceReconciler{
+		Client:      mgr.GetClient(),
+		Log:         ctrl.Log.WithName("controllers").WithName("KNativeService"),
+		Config:      rc,
+		RiserClient: riserClient,
+	}).SetupWithManager(mgr)
+	exitIfError(err, "unable to create controller", "controller", "KNativeService")
 
-		err = (&controllers.DeploymentReconciler{
-			Client:      mgr.GetClient(),
-			Log:         ctrl.Log.WithName("controllers").WithName("Deployment"),
-			Config:      rc,
-			RiserClient: riserClient,
-		}).SetupWithManager(mgr)
-		exitIfError(err, "unable to create controller", "controller", "Deployment")
-		// TODO: We may still need this even w/KNative. Need to test readiness probe state change scenarios first
-		err = (&controllers.PodReconciler{
-			Client:      mgr.GetClient(),
-			Log:         ctrl.Log.WithName("controllers").WithName("Pod"),
-			Config:      rc,
-			RiserClient: riserClient,
-		}).SetupWithManager(mgr)
-		exitIfError(err, "unable to create controller", "controller", "Deployment")
-	}
+	// TODO: We may still need this even w/KNative. Need to test readiness probe state change scenarios first
+	// err = (&controllers.PodReconciler{
+	// 	Client:      mgr.GetClient(),
+	// 	Log:         ctrl.Log.WithName("controllers").WithName("Pod"),
+	// 	Config:      rc,
+	// 	RiserClient: riserClient,
+	// }).SetupWithManager(mgr)
+	// exitIfError(err, "unable to create controller", "controller", "Pod")
+
 	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")

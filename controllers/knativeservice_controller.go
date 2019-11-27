@@ -84,7 +84,6 @@ func (r *KNativeServiceReconciler) getRevisions(ksvc *knserving.Service) ([]revi
 	for _, revision := range revisions.Items {
 		deployment, err := r.getDeployment(&revision)
 		if err != nil {
-			// TODO: Is this really fatal for a status update?
 			return nil, err
 		}
 		revisionDeployments = append(revisionDeployments, revisionDeployment{
