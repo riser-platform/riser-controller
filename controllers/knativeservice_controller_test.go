@@ -89,7 +89,7 @@ func Test_createStatusFromKnativeSvc(t *testing.T) {
 					},
 				},
 			},
-			Deployment: appsv1.Deployment{
+			Deployment: &appsv1.Deployment{
 				Status: appsv1.DeploymentStatus{
 					AvailableReplicas: 1,
 				},

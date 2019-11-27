@@ -17,6 +17,8 @@ import (
 	knserving "knative.dev/serving/pkg/apis/serving/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	kerrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
 type KNativeServiceReconciler struct {
@@ -28,7 +30,7 @@ type KNativeServiceReconciler struct {
 
 type revisionDeployment struct {
 	knserving.Revision
-	Deployment appsv1.Deployment
+	Deployment *appsv1.Deployment
 }
 
 func (r *KNativeServiceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
@@ -84,11 +86,15 @@ func (r *KNativeServiceReconciler) getRevisions(ksvc *knserving.Service) ([]revi
 	for _, revision := range revisions.Items {
 		deployment, err := r.getDeployment(&revision)
 		if err != nil {
-			return nil, err
+			if kerrors.IsNotFound(err) {
+				r.Log.Info("Deployment not found for revision", "revision", revision.Name)
+			} else {
+				return nil, errors.Wrap(err, "error getting deployment for revision")
+			}
 		}
 		revisionDeployments = append(revisionDeployments, revisionDeployment{
 			Revision:   revision,
-			Deployment: *deployment,
+			Deployment: deployment,
 		})
 	}
 
@@ -119,7 +125,7 @@ func createStatusFromKnativeSvc(ksvc *knserving.Service, revisions []revisionDep
 		}
 		status.Revisions[idx] = model.DeploymentRevisionStatus{
 			Name:              revision.Name,
-			AvailableReplicas: getAvailableReplicasFromDeployment(&revision.Deployment),
+			AvailableReplicas: getAvailableReplicasFromDeployment(revision.Deployment),
 			DockerImage:       dockerImage,
 			RiserGeneration:   revisionGen,
 		}
@@ -158,7 +164,7 @@ func (r *KNativeServiceReconciler) getDeployment(revision *knserving.Revision) (
 	deployment := &appsv1.Deployment{}
 	err := r.Get(context.Background(), types.NamespacedName{Name: fmt.Sprintf("%s-deployment", revision.Name), Namespace: revision.Namespace}, deployment)
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting deployment for revision")
+		return nil, err
 	}
 
 	return deployment, nil
