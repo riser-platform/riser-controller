@@ -103,12 +103,13 @@ func createStatusFromKnativeSvc(ksvc *knserving.Service, revisions []revisionDep
 	}
 
 	status := &model.DeploymentStatusMutable{
-		ObservedRiserGeneration: observedRiserGeneration,
-		LatestReadyRevisionName: ksvc.Status.LatestReadyRevisionName,
+		ObservedRiserGeneration:   observedRiserGeneration,
+		LatestCreatedRevisionName: ksvc.Status.LatestCreatedRevisionName,
+		LatestReadyRevisionName:   ksvc.Status.LatestReadyRevisionName,
 	}
 
-	status.Revisions = []model.DeploymentRevisionStatus{}
-	for _, revision := range revisions {
+	status.Revisions = make([]model.DeploymentRevisionStatus, len(revisions))
+	for idx, revision := range revisions {
 		dockerImage, err := getAppDockerImageFromKnativeRevision(&revision.Revision)
 		if err != nil {
 			return nil, errors.Wrap(err, "Unable to get docker image")
@@ -117,12 +118,21 @@ func createStatusFromKnativeSvc(ksvc *knserving.Service, revisions []revisionDep
 		if err != nil {
 			return nil, errors.Wrap(err, fmt.Sprintf("Error getting riser generation for revision %q", revision.ObjectMeta.Name))
 		}
-		status.Revisions = append(status.Revisions, model.DeploymentRevisionStatus{
+		status.Revisions[idx] = model.DeploymentRevisionStatus{
 			Name:              revision.Name,
 			AvailableReplicas: getAvailableReplicasFromDeployment(&revision.Deployment),
 			DockerImage:       dockerImage,
 			RiserGeneration:   revisionGen,
-		})
+		}
+	}
+
+	status.Traffic = make([]model.DeploymentTrafficStatus, len(ksvc.Status.Traffic))
+	for idx, traffic := range ksvc.Status.Traffic {
+		status.Traffic[idx] = model.DeploymentTrafficStatus{
+			RevisionName: traffic.RevisionName,
+			Percent:      traffic.Percent,
+			Latest:       traffic.LatestRevision,
+		}
 	}
 	return status, nil
 }

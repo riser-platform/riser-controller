@@ -12,7 +12,6 @@ replace (
 require (
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0 // indirect
 	contrib.go.opencensus.io/exporter/stackdriver v0.12.5 // indirect
-	github.com/davecgh/go-spew v1.1.1
 	github.com/go-logr/logr v0.1.0
 	github.com/google/go-containerregistry v0.0.0-20191108172333-79629ba8e9a1 // indirect
 	github.com/google/uuid v1.1.1 // indirect
@@ -20,8 +19,8 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mattbaird/jsonpatch v0.0.0-20171005235357-81af80346b1a // indirect
 	github.com/pkg/errors v0.8.1
-	github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191119113718-1a0c7c19002d
-	github.com/riser-platform/riser/sdk v0.0.0-20191119104919-6b075175f29c
+	github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191120163017-835ed77d688f
+	github.com/riser-platform/riser/sdk v0.0.0-20191120163108-5f6d2eaa767b
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472 // indirect
 	k8s.io/api v0.0.0-20190830074751-c43c3e1d5a79

@@ -227,12 +227,10 @@ github.com/prometheus/procfs v0.0.0-20180725123919-05ee40e3a273/go.mod h1:c3At6R
 github.com/prometheus/procfs v0.0.0-20181204211112-1dc9a6cbc91a h1:9a8MnZMP0X2nLJdBg+pBmGgkJlSaKC2KaQmTCk1XDtE=
 github.com/prometheus/procfs v0.0.0-20181204211112-1dc9a6cbc91a/go.mod h1:c3At6R/oaqEKCNdg8wHV1ftS6bRYblBhIjjI8uT2IGk=
 github.com/remyoudompheng/bigfft v0.0.0-20170806203942-52369c62f446/go.mod h1:uYEyJGbgTkfkS4+E/PavXkNJcbFIpEtjt2B0KDQ5+9M=
-github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191119104756-fb98402bd30f h1:nBCbrdAytVPnP/zPCW+JUNR6+t2mNWydxXqMmnHlGwI=
-github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191119104756-fb98402bd30f/go.mod h1:Q5LMRqsqxdCPygU9c1vGyAdQtzqFbJN1B//ojv0fwrU=
-github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191119113718-1a0c7c19002d h1:UcMz/yP2bCgJBLTGgbop4n29g67WG2mysbeTSCuiUN8=
-github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191119113718-1a0c7c19002d/go.mod h1:Q5LMRqsqxdCPygU9c1vGyAdQtzqFbJN1B//ojv0fwrU=
-github.com/riser-platform/riser/sdk v0.0.0-20191119104919-6b075175f29c h1:/hZhtNIPluSi2+MMV6XW2FDJs1FPk3zyIPflxzU5a9I=
-github.com/riser-platform/riser/sdk v0.0.0-20191119104919-6b075175f29c/go.mod h1:le9k0V+Ld7rCLxeY6HZczGY+vFX/SN0aFT3noa4Xd40=
+github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191120163017-835ed77d688f h1:DIUsHB7wNYu0CLUz5/59vJI96h/2SoHU6VWb4pju3nU=
+github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191120163017-835ed77d688f/go.mod h1:Q5LMRqsqxdCPygU9c1vGyAdQtzqFbJN1B//ojv0fwrU=
+github.com/riser-platform/riser/sdk v0.0.0-20191120163108-5f6d2eaa767b h1:nsvSQJ+dLM9rUwg2hQ6CMD79sYKBe4/C7IZxZ7q4NDo=
+github.com/riser-platform/riser/sdk v0.0.0-20191120163108-5f6d2eaa767b/go.mod h1:20wuM/9QIMb9lSrGsfdt2Owz1oP0nUA3nim2eF+E1hA=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/sclevine/spec v1.2.0/go.mod h1:W4J29eT/Kzv7/b9IWLB055Z+qvVC9vt0Arko24q7p+U=
