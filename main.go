@@ -116,6 +116,14 @@ func main() {
 	}).SetupWithManager(mgr)
 	exitIfError(err, "unable to create controller", "controller", "KNativeService")
 
+	err = (&controllers.KNativeDomainReconciler{
+		Client:      mgr.GetClient(),
+		Log:         ctrl.Log.WithName("controllers").WithName("KNativeDomain"),
+		Config:      rc,
+		RiserClient: riserClient,
+	}).SetupWithManager(mgr)
+	exitIfError(err, "unable to create controller", "controller", "KNativeDomain")
+
 	// TODO: We may still need this even w/KNative. Need to test readiness probe state change scenarios first
 	// err = (&controllers.PodReconciler{
 	// 	Client:      mgr.GetClient(),
