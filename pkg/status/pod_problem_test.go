@@ -33,16 +33,16 @@ func Test_getPodProblems(t *testing.T) {
 	pods := &corev1.PodList{}
 	pods.Items = []corev1.Pod{pod1, pod2}
 	probe1 := &fakeProbe{
-		GetProblemFn: func(podArg *corev1.Pod) *PodProblem {
+		GetProblemFn: func(podArg *corev1.Pod) *Problem {
 			if podArg.Name == "pod1" {
-				return &PodProblem{Message: "problem1"}
+				return &Problem{Message: "problem1"}
 			}
 			return nil
 		},
 	}
 	probe2 := &fakeProbe{
-		GetProblemFn: func(podArg *corev1.Pod) *PodProblem {
-			return &PodProblem{Message: "problem2"}
+		GetProblemFn: func(podArg *corev1.Pod) *Problem {
+			return &Problem{Message: "problem2"}
 		},
 	}
 
@@ -60,9 +60,9 @@ func Test_getPodProblems(t *testing.T) {
 }
 
 type fakeProbe struct {
-	GetProblemFn func(*corev1.Pod) *PodProblem
+	GetProblemFn func(*corev1.Pod) *Problem
 }
 
-func (probe *fakeProbe) GetProblem(pod *corev1.Pod) *PodProblem {
+func (probe *fakeProbe) GetProblem(pod *corev1.Pod) *Problem {
 	return probe.GetProblemFn(pod)
 }

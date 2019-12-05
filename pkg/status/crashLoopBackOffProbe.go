@@ -9,11 +9,11 @@ import (
 type crashLoopBackOffProbe struct {
 }
 
-func (probe *crashLoopBackOffProbe) GetProblem(pod *corev1.Pod) *PodProblem {
+func (probe *crashLoopBackOffProbe) GetProblem(pod *corev1.Pod) *Problem {
 	if pod.Status.Phase == corev1.PodRunning {
 		for _, containerStatus := range pod.Status.ContainerStatuses {
 			if !containerStatus.Ready && containerStatus.State.Waiting != nil && containerStatus.State.Waiting.Reason == "CrashLoopBackOff" {
-				return &PodProblem{Message: fmt.Sprintf("%s: %s", containerStatus.State.Waiting.Reason, containerStatus.State.Waiting.Message)}
+				return &Problem{Message: fmt.Sprintf("%s: %s", containerStatus.State.Waiting.Reason, containerStatus.State.Waiting.Message)}
 			}
 		}
 	}

@@ -11,7 +11,7 @@ const defaultPodReadinessSeconds = 60
 
 type healthcheckProbe struct{}
 
-func (probe *healthcheckProbe) GetProblem(pod *corev1.Pod) *PodProblem {
+func (probe *healthcheckProbe) GetProblem(pod *corev1.Pod) *Problem {
 	// Scenario: Rollout completes. Old version goes away. New version readiness (health check) fails (e.g. after a few minutes and all old pods are terminated)
 	if pod.Status.Phase == corev1.PodRunning {
 		for _, containerStatus := range pod.Status.ContainerStatuses {
@@ -20,7 +20,7 @@ func (probe *healthcheckProbe) GetProblem(pod *corev1.Pod) *PodProblem {
 					// TODO: Can we be in a running state while not ready for any other reason other than pod readiness?
 					// TODO: look up the readiness probe and calculate a reasonable threshold between InitialDelaySeconds, TimeoutSeconds, and FailureThreshold
 					if time.Since(containerStatus.State.Running.StartedAt.Time) > defaultPodReadinessSeconds*time.Second {
-						return &PodProblem{Message: fmt.Sprintf("Container %q failing health check", containerStatus.Name)}
+						return &Problem{Message: fmt.Sprintf("Container %q failing health check", containerStatus.Name)}
 					}
 				}
 			}

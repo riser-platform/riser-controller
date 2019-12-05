@@ -6,7 +6,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-type PodProblem struct {
+type Problem struct {
 	Message string
 }
 
@@ -15,7 +15,7 @@ type ProblemList struct {
 }
 
 type PodProblemProbe interface {
-	GetProblem(pod *corev1.Pod) *PodProblem
+	GetProblem(pod *corev1.Pod) *Problem
 }
 
 func (list *ProblemList) Items() []model.DeploymentStatusProblem {
