@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	// TODO: Rename pkg/status
 	"context"
 	"fmt"
 	"riser-controller/pkg/runtime"
+	probe "riser-controller/pkg/status"
 
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -123,11 +125,15 @@ func createStatusFromKnativeSvc(ksvc *knserving.Service, revisions []revisionDep
 		if err != nil {
 			return nil, errors.Wrap(err, fmt.Sprintf("Error getting riser generation for revision %q", revision.ObjectMeta.Name))
 		}
+
+		rolloutStatus := probe.GetRevisionStatus(&revision.Revision, revision.Deployment)
 		status.Revisions[idx] = model.DeploymentRevisionStatus{
-			Name:              revision.Name,
-			AvailableReplicas: getAvailableReplicasFromDeployment(revision.Deployment),
-			DockerImage:       dockerImage,
-			RiserGeneration:   revisionGen,
+			Name:                revision.Name,
+			AvailableReplicas:   getAvailableReplicasFromDeployment(revision.Deployment),
+			DockerImage:         dockerImage,
+			RiserGeneration:     revisionGen,
+			RolloutStatus:       rolloutStatus.Status,
+			RolloutStatusReason: rolloutStatus.Reason,
 		}
 	}
 

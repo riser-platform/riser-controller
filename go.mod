@@ -26,7 +26,7 @@ require (
 	k8s.io/api v0.0.0-20190830074751-c43c3e1d5a79
 	k8s.io/apimachinery v0.0.0-20191116203941-08e4eafd6d11
 	k8s.io/client-go v11.0.1-0.20190409021438-1a26190bd76a+incompatible
-	knative.dev/pkg v0.0.0-20191107185656-884d50f09454 // indirect
+	knative.dev/pkg v0.0.0-20191107185656-884d50f09454
 	knative.dev/serving v0.10.0
 	sigs.k8s.io/controller-runtime v0.2.1
 

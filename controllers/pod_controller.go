@@ -6,7 +6,7 @@ import (
 	"riser-controller/pkg/runtime"
 	"time"
 
-	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -17,6 +17,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/riser-platform/riser/sdk"
+
+	knserving "knative.dev/serving/pkg/apis/serving/v1"
 )
 
 type PodReconciler struct {
@@ -27,8 +29,8 @@ type PodReconciler struct {
 }
 
 // HACK: There's got to be a better way!
-// THere are scenarios where a pod becomes unhealthy but does not trigger a Deployment reconcile, in which case we do not update the pod status
-// with riser. This forces a deployment reconcile by mutating the deployment.
+// THere are scenarios where a pod becomes unhealthy but does not trigger a knative service update, in which case we do not update the pod status
+// with riser. This forces a reconcile by mutating the knative service.
 func (r *PodReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 	log := r.Log.WithValues("pod", req.NamespacedName)
@@ -43,23 +45,17 @@ func (r *PodReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	if isRiserApp(pod.ObjectMeta) {
 		log.Info("Pod reconcile", "pod", pod.Name, "namespace", pod.Namespace)
-		deployments := &appsv1.DeploymentList{}
-		err := r.List(context.Background(), deployments, client.InNamespace(pod.Namespace), riserAppFilter(pod.ObjectMeta))
+		service := &knserving.Service{}
+		err := r.Get(context.Background(), types.NamespacedName{Name: pod.Labels["serving.knative.dev/service"], Namespace: req.Namespace}, service)
 		if err != nil {
-			log.Error(err, "Error fetching deployment for pod")
+			log.Error(err, "Error fetching service for pod")
 			return ctrl.Result{}, err
 		}
 
-		if len(deployments.Items) != 1 {
-			log.Error(nil, fmt.Sprintf("Unexpected number of deployments for pod %s. Found %d expected 1", pod.Name, len(deployments.Items)))
-			return ctrl.Result{}, err
-		}
-
-		deployment := deployments.Items[0]
-		deployment.Annotations[riserLabel("controller-observed")] = fmt.Sprint(time.Now().Unix())
-		err = r.Update(ctx, &deployment)
+		service.Annotations[riserLabel("controller-observed")] = fmt.Sprint(time.Now().Unix())
+		err = r.Update(ctx, service)
 		if err != nil {
-			log.Error(err, "Error updating deployment", "deployment", deployment.Name)
+			log.Error(err, "Error updating service", "service", service.Name)
 		}
 	}
 
