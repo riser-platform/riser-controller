@@ -7,7 +7,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-const defaultPodReadinessSeconds = 60
+const defaultPodReadinessSeconds = 30
 
 type healthcheckProbe struct{}
 

@@ -2,7 +2,6 @@ package status
 
 import (
 	"github.com/riser-platform/riser-server/api/v1/model"
-	appsv1 "k8s.io/api/apps/v1"
 	knserving "knative.dev/serving/pkg/apis/serving/v1"
 )
 
@@ -19,9 +18,9 @@ Revision Pods
 Note: Could check PodScheduled if there's limited resources?
 */
 
-// TODO: Not really a "RolloutStatus"
 // TODO: What about Pod Problems at the revision level?
-func GetRevisionStatus(rev *knserving.Revision, deployment *appsv1.Deployment) RolloutStatus {
+// TODO: Test
+func GetRevisionStatus(rev *knserving.Revision) RolloutStatus {
 	if len(rev.Status.Conditions) == 0 {
 		return RolloutStatus{Status: model.RolloutStatusUnknown}
 	}
@@ -37,5 +36,5 @@ func GetRevisionStatus(rev *knserving.Revision, deployment *appsv1.Deployment) R
 		}
 	}
 
-	return GetRolloutStatus(deployment)
+	return RolloutStatus{Status: model.RolloutStatusComplete}
 }

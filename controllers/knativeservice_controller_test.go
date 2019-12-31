@@ -41,8 +41,8 @@ func Test_createStatusFromKnativeSvc(t *testing.T) {
 			},
 		},
 	}
-	revisions := []revisionDeployment{
-		revisionDeployment{
+	revisions := []revisionEtc{
+		revisionEtc{
 			Revision: knserving.Revision{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "rev0",
@@ -66,7 +66,7 @@ func Test_createStatusFromKnativeSvc(t *testing.T) {
 				},
 			},
 		},
-		revisionDeployment{
+		revisionEtc{
 			Revision: knserving.Revision{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "rev1",

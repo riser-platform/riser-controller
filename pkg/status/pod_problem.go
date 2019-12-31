@@ -11,15 +11,15 @@ type Problem struct {
 }
 
 type ProblemList struct {
-	problemMap map[string]model.DeploymentStatusProblem
+	problemMap map[string]model.StatusProblem
 }
 
 type PodProblemProbe interface {
 	GetProblem(pod *corev1.Pod) *Problem
 }
 
-func (list *ProblemList) Items() []model.DeploymentStatusProblem {
-	items := []model.DeploymentStatusProblem{}
+func (list *ProblemList) Items() []model.StatusProblem {
+	items := []model.StatusProblem{}
 	for _, item := range list.problemMap {
 		items = append(items, item)
 	}
@@ -29,13 +29,13 @@ func (list *ProblemList) Items() []model.DeploymentStatusProblem {
 
 func (list *ProblemList) AddProblem(message string) {
 	if list.problemMap == nil {
-		list.problemMap = map[string]model.DeploymentStatusProblem{}
+		list.problemMap = map[string]model.StatusProblem{}
 	}
 	if problem, found := list.problemMap[message]; found {
 		problem.Count = problem.Count + 1
 		list.problemMap[message] = problem
 	} else {
-		list.problemMap[message] = model.DeploymentStatusProblem{Count: 1, Message: message}
+		list.problemMap[message] = model.StatusProblem{Count: 1, Message: message}
 	}
 }
 

@@ -8,6 +8,7 @@ import (
 	probe "riser-controller/pkg/status"
 
 	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/pkg/errors"
@@ -30,9 +31,10 @@ type KNativeServiceReconciler struct {
 	RiserClient *sdk.Client
 }
 
-type revisionDeployment struct {
+type revisionEtc struct {
 	knserving.Revision
 	Deployment *appsv1.Deployment
+	Pods       *corev1.PodList
 }
 
 func (r *KNativeServiceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
@@ -43,7 +45,7 @@ func (r *KNativeServiceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 
 	err := r.Get(ctx, req.NamespacedName, service)
 	if err != nil {
-		log.Error(err, "Unable to get KNative service")
+		log.Error(err, "Unable to get knative service")
 		return ctrl.Result{}, err
 	}
 	if isRiserApp(service.ObjectMeta) {
@@ -52,8 +54,10 @@ func (r *KNativeServiceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 			log.Error(err, "Unable to list revisions")
 			return ctrl.Result{}, err
 		}
+
 		status, err := createStatusFromKnativeSvc(service, revisions)
 		if err != nil {
+			log.Error(err, "Unable to determine service status")
 			return ctrl.Result{}, err
 		}
 
@@ -75,17 +79,17 @@ func (r *KNativeServiceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (r *KNativeServiceReconciler) getRevisions(ksvc *knserving.Service) ([]revisionDeployment, error) {
-	revisions := &knserving.RevisionList{}
+func (r *KNativeServiceReconciler) getRevisions(ksvc *knserving.Service) ([]revisionEtc, error) {
+	revisionList := &knserving.RevisionList{}
 	// Filtering on app label works but ownerReference is probably the more correct approach.
 	// Couldn't quickly find how to do that so sticking with the label filter for now.
-	err := r.List(context.Background(), revisions, client.InNamespace(ksvc.Namespace), riserAppFilter(ksvc.ObjectMeta))
+	err := r.List(context.Background(), revisionList, client.InNamespace(ksvc.Namespace), riserAppFilter(ksvc.ObjectMeta))
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing revisions")
 	}
 
-	revisionDeployments := []revisionDeployment{}
-	for _, revision := range revisions.Items {
+	revisions := []revisionEtc{}
+	for _, revision := range revisionList.Items {
 		deployment, err := r.getDeployment(&revision)
 		if err != nil {
 			if kerrors.IsNotFound(err) {
@@ -94,16 +98,24 @@ func (r *KNativeServiceReconciler) getRevisions(ksvc *knserving.Service) ([]revi
 				return nil, errors.Wrap(err, "error getting deployment for revision")
 			}
 		}
-		revisionDeployments = append(revisionDeployments, revisionDeployment{
+		pods := &corev1.PodList{}
+		if deployment != nil {
+			pods, err = r.getPodsForRevision(&revision)
+			if err != nil {
+				return nil, errors.Wrap(err, "error getting pods for deployment")
+			}
+		}
+		revisions = append(revisions, revisionEtc{
 			Revision:   revision,
 			Deployment: deployment,
+			Pods:       pods,
 		})
 	}
 
-	return revisionDeployments, nil
+	return revisions, nil
 }
 
-func createStatusFromKnativeSvc(ksvc *knserving.Service, revisions []revisionDeployment) (*model.DeploymentStatusMutable, error) {
+func createStatusFromKnativeSvc(ksvc *knserving.Service, revisions []revisionEtc) (*model.DeploymentStatusMutable, error) {
 	observedRiserGeneration, err := getRiserGeneration(ksvc.ObjectMeta)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("Error getting riser generation for knative service %q", ksvc.Name))
@@ -126,7 +138,8 @@ func createStatusFromKnativeSvc(ksvc *knserving.Service, revisions []revisionDep
 			return nil, errors.Wrap(err, fmt.Sprintf("Error getting riser generation for revision %q", revision.ObjectMeta.Name))
 		}
 
-		rolloutStatus := probe.GetRevisionStatus(&revision.Revision, revision.Deployment)
+		rolloutStatus := probe.GetRevisionStatus(&revision.Revision)
+		problems := probe.GetPodProblems(revision.Pods)
 		status.Revisions[idx] = model.DeploymentRevisionStatus{
 			Name:                revision.Name,
 			AvailableReplicas:   getAvailableReplicasFromDeployment(revision.Deployment),
@@ -134,6 +147,7 @@ func createStatusFromKnativeSvc(ksvc *knserving.Service, revisions []revisionDep
 			RiserGeneration:     revisionGen,
 			RolloutStatus:       rolloutStatus.Status,
 			RolloutStatusReason: rolloutStatus.Reason,
+			Problems:            problems.Items(),
 		}
 	}
 
@@ -154,6 +168,19 @@ func getAvailableReplicasFromDeployment(deployment *appsv1.Deployment) int32 {
 	}
 
 	return deployment.Status.AvailableReplicas
+}
+
+func (r *KNativeServiceReconciler) getPodsForRevision(revision *knserving.Revision) (*corev1.PodList, error) {
+	pods := &corev1.PodList{}
+	labels := client.MatchingLabels{
+		"serving.knative.dev/revision": revision.Name,
+	}
+	err := r.List(context.Background(), pods, client.InNamespace(revision.Namespace), labels)
+	if err != nil {
+		return nil, errors.Wrap(err, "error listing pods")
+	}
+
+	return pods, nil
 }
 
 func getAppDockerImageFromKnativeRevision(revision *knserving.Revision) (string, error) {

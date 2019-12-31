@@ -19,9 +19,9 @@ func Test_ProblemList_AddProblem(t *testing.T) {
 
 	result := problems.Items()
 
-	expected := []model.DeploymentStatusProblem{
-		model.DeploymentStatusProblem{Count: 2, Message: "test"},
-		model.DeploymentStatusProblem{Count: 1, Message: "test2"},
+	expected := []model.StatusProblem{
+		model.StatusProblem{Count: 2, Message: "test"},
+		model.StatusProblem{Count: 1, Message: "test2"},
 	}
 
 	assert.ElementsMatch(t, expected, result)
