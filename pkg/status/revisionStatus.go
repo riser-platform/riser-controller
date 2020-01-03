@@ -27,7 +27,10 @@ func GetRevisionStatus(rev *knserving.Revision) RolloutStatus {
 
 	for _, cnd := range rev.Status.Conditions {
 		if cnd.Type == "Ready" {
-			if cnd.IsUnknown() && cnd.Reason != "Deploying" {
+			if cnd.IsUnknown() {
+				if cnd.Reason == "Deploying" {
+					return RolloutStatus{Status: model.RolloutStatusInProgress}
+				}
 				return RolloutStatus{Status: model.RolloutStatusUnknown, Reason: cnd.Message}
 			}
 			if cnd.IsFalse() {
