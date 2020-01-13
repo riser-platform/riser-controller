@@ -24,40 +24,62 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
-type KNativeServiceReconciler struct {
+type KNativeConfigurationReconciler struct {
+	KNativeReconciler
+}
+
+type KNativeRouteReconciler struct {
+	KNativeReconciler
+}
+
+type KNativeReconciler struct {
 	client.Client
 	Log         logr.Logger
 	Config      runtime.Config
 	RiserClient *sdk.Client
 }
 
+// TODO: Rename to revisionGraph?
 type revisionEtc struct {
 	knserving.Revision
 	Deployment *appsv1.Deployment
 	Pods       *corev1.PodList
 }
 
-func (r *KNativeServiceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+// This arguably breaks the prescriptive reconcile pattern of one type per reconcile. Similar to a knative Service, we treat
+// Configuration+Route as a single status entry in Riser. Options are:
+// - Have separate status endpoints in the riser API for config and route status and update the statuses independently
+// - Use a knative Service: this is problematic with the gitops pattern because the lifecycles are different for each resource
+// - Keep doing what we're doing if there's no practical side effects (<- likely the right answer)
+func (r *KNativeReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
-	log := r.Log.WithValues("service", req.NamespacedName)
+	log := r.Log.WithValues("knative", req.NamespacedName)
 
-	service := &knserving.Service{}
+	configuration := &knserving.Configuration{}
 
-	err := r.Get(ctx, req.NamespacedName, service)
+	err := r.Get(ctx, req.NamespacedName, configuration)
 	if err != nil {
-		log.Error(err, "Unable to get knative service")
+		log.Error(err, "Unable to get knative configuration")
 		return ctrl.Result{}, err
 	}
-	if isRiserApp(service.ObjectMeta) {
-		revisions, err := r.getRevisions(service)
+
+	if isRiserApp(configuration.ObjectMeta) {
+		revisions, err := r.getRevisions(configuration)
 		if err != nil {
 			log.Error(err, "Unable to list revisions")
 			return ctrl.Result{}, err
 		}
 
-		status, err := createStatusFromKnativeSvc(service, revisions)
+		route := &knserving.Route{}
+		err = r.Get(ctx, req.NamespacedName, route)
 		if err != nil {
-			log.Error(err, "Unable to determine service status")
+			log.Error(err, "Unable to get knative route")
+			return ctrl.Result{}, err
+		}
+
+		status, err := createStatusFromKnative(configuration, route, revisions)
+		if err != nil {
+			log.Error(err, "Unable to determine configuration status")
 			return ctrl.Result{}, err
 		}
 
@@ -73,17 +95,23 @@ func (r *KNativeServiceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 	return ctrl.Result{}, nil
 }
 
-func (r *KNativeServiceReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *KNativeConfigurationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&knserving.Service{}).
+		For(&knserving.Configuration{}).
 		Complete(r)
 }
 
-func (r *KNativeServiceReconciler) getRevisions(ksvc *knserving.Service) ([]revisionEtc, error) {
+func (r *KNativeRouteReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&knserving.Route{}).
+		Complete(r)
+}
+
+func (r *KNativeReconciler) getRevisions(kcfg *knserving.Configuration) ([]revisionEtc, error) {
 	revisionList := &knserving.RevisionList{}
 	// Filtering on app label works but ownerReference is probably the more correct approach.
 	// Couldn't quickly find how to do that so sticking with the label filter for now.
-	err := r.List(context.Background(), revisionList, client.InNamespace(ksvc.Namespace), riserAppFilter(ksvc.ObjectMeta))
+	err := r.List(context.Background(), revisionList, client.InNamespace(kcfg.Namespace), riserAppFilter(kcfg.ObjectMeta))
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing revisions")
 	}
@@ -115,16 +143,17 @@ func (r *KNativeServiceReconciler) getRevisions(ksvc *knserving.Service) ([]revi
 	return revisions, nil
 }
 
-func createStatusFromKnativeSvc(ksvc *knserving.Service, revisions []revisionEtc) (*model.DeploymentStatusMutable, error) {
-	observedRiserGeneration, err := getRiserGeneration(ksvc.ObjectMeta)
+func createStatusFromKnative(kcfg *knserving.Configuration, route *knserving.Route, revisions []revisionEtc) (*model.DeploymentStatusMutable, error) {
+	// TODO: check route generation and warn when there's a conflict, or consider not updating status at all
+	observedRiserGeneration, err := getRiserGeneration(kcfg.ObjectMeta)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("Error getting riser generation for knative service %q", ksvc.Name))
+		return nil, errors.Wrap(err, fmt.Sprintf("Error getting riser generation for knative service %q", kcfg.Name))
 	}
 
 	status := &model.DeploymentStatusMutable{
 		ObservedRiserGeneration:   observedRiserGeneration,
-		LatestCreatedRevisionName: ksvc.Status.LatestCreatedRevisionName,
-		LatestReadyRevisionName:   ksvc.Status.LatestReadyRevisionName,
+		LatestCreatedRevisionName: kcfg.Status.LatestCreatedRevisionName,
+		LatestReadyRevisionName:   kcfg.Status.LatestReadyRevisionName,
 	}
 
 	status.Revisions = make([]model.DeploymentRevisionStatus, len(revisions))
@@ -151,8 +180,8 @@ func createStatusFromKnativeSvc(ksvc *knserving.Service, revisions []revisionEtc
 		}
 	}
 
-	status.Traffic = make([]model.DeploymentTrafficStatus, len(ksvc.Status.Traffic))
-	for idx, traffic := range ksvc.Status.Traffic {
+	status.Traffic = make([]model.DeploymentTrafficStatus, len(route.Status.Traffic))
+	for idx, traffic := range route.Status.Traffic {
 		status.Traffic[idx] = model.DeploymentTrafficStatus{
 			RevisionName: traffic.RevisionName,
 			Percent:      traffic.Percent,
@@ -170,7 +199,7 @@ func getAvailableReplicasFromDeployment(deployment *appsv1.Deployment) int32 {
 	return deployment.Status.AvailableReplicas
 }
 
-func (r *KNativeServiceReconciler) getPodsForRevision(revision *knserving.Revision) (*corev1.PodList, error) {
+func (r *KNativeReconciler) getPodsForRevision(revision *knserving.Revision) (*corev1.PodList, error) {
 	pods := &corev1.PodList{}
 	labels := client.MatchingLabels{
 		"serving.knative.dev/revision": revision.Name,
@@ -193,7 +222,7 @@ func getAppDockerImageFromKnativeRevision(revision *knserving.Revision) (string,
 	return "", fmt.Errorf("Unable to find a container matching the deployment %q", riserDeployment)
 }
 
-func (r *KNativeServiceReconciler) getDeployment(revision *knserving.Revision) (*appsv1.Deployment, error) {
+func (r *KNativeReconciler) getDeployment(revision *knserving.Revision) (*appsv1.Deployment, error) {
 	deployment := &appsv1.Deployment{}
 	err := r.Get(context.Background(), types.NamespacedName{Name: fmt.Sprintf("%s-deployment", revision.Name), Namespace: revision.Namespace}, deployment)
 	if err != nil {

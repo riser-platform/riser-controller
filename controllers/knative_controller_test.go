@@ -13,19 +13,23 @@ import (
 	knserving "knative.dev/serving/pkg/apis/serving/v1"
 )
 
-func Test_createStatusFromKnativeSvc(t *testing.T) {
-	ksvc := &knserving.Service{
+func Test_createStatusFromKnative(t *testing.T) {
+	cfg := &knserving.Configuration{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "mydep",
 			Annotations: map[string]string{
 				riserLabel("generation"): "1",
 			},
 		},
-		Status: knserving.ServiceStatus{
+		Status: knserving.ConfigurationStatus{
 			ConfigurationStatusFields: knserving.ConfigurationStatusFields{
 				LatestReadyRevisionName:   "rev0",
 				LatestCreatedRevisionName: "rev1",
 			},
+		},
+	}
+	route := &knserving.Route{
+		Status: knserving.RouteStatus{
 			RouteStatusFields: knserving.RouteStatusFields{
 				Traffic: []knserving.TrafficTarget{
 					knserving.TrafficTarget{
@@ -97,7 +101,7 @@ func Test_createStatusFromKnativeSvc(t *testing.T) {
 		},
 	}
 
-	result, err := createStatusFromKnativeSvc(ksvc, revisions)
+	result, err := createStatusFromKnative(cfg, route, revisions)
 
 	require.NoError(t, err)
 	assert.Equal(t, int64(1), result.ObservedRiserGeneration)

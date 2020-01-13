@@ -108,13 +108,25 @@ func main() {
 		exitIfError(err, "Unable to start sealed secret cert refresher")
 	}
 
-	err = (&controllers.KNativeServiceReconciler{
-		Client:      mgr.GetClient(),
-		Log:         ctrl.Log.WithName("controllers").WithName("KNativeService"),
-		Config:      rc,
-		RiserClient: riserClient,
+	err = (&controllers.KNativeConfigurationReconciler{
+		KNativeReconciler: controllers.KNativeReconciler{
+			Client:      mgr.GetClient(),
+			Log:         ctrl.Log.WithName("controllers").WithName("KNativeConfiguration"),
+			Config:      rc,
+			RiserClient: riserClient,
+		},
 	}).SetupWithManager(mgr)
-	exitIfError(err, "unable to create controller", "controller", "KNativeService")
+	exitIfError(err, "unable to create controller", "controller", "KNativeConfiguration")
+
+	err = (&controllers.KNativeRouteReconciler{
+		KNativeReconciler: controllers.KNativeReconciler{
+			Client:      mgr.GetClient(),
+			Log:         ctrl.Log.WithName("controllers").WithName("KNativeConfiguration"),
+			Config:      rc,
+			RiserClient: riserClient,
+		},
+	}).SetupWithManager(mgr)
+	exitIfError(err, "unable to create controller", "controller", "KNativeConfiguration")
 
 	err = (&controllers.KNativeDomainReconciler{
 		Client:      mgr.GetClient(),

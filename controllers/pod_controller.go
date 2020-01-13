@@ -29,8 +29,8 @@ type PodReconciler struct {
 }
 
 // HACK: There's got to be a better way!
-// THere are scenarios where a pod becomes unhealthy but does not trigger a knative service update, in which case we do not update the pod status
-// with riser. This forces a reconcile by mutating the knative service.
+// THere are scenarios where a pod becomes unhealthy but does not trigger a knative configuration update, in which case we do not update the pod status
+// with riser. This forces a reconcile by mutating the configuration service.
 func (r *PodReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 	log := r.Log.WithValues("pod", req.NamespacedName)
@@ -45,17 +45,17 @@ func (r *PodReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	if isRiserApp(pod.ObjectMeta) {
 		log.Info("Pod reconcile", "pod", pod.Name, "namespace", pod.Namespace)
-		service := &knserving.Service{}
-		err := r.Get(context.Background(), types.NamespacedName{Name: pod.Labels["serving.knative.dev/service"], Namespace: req.Namespace}, service)
+		configuration := &knserving.Configuration{}
+		err := r.Get(context.Background(), types.NamespacedName{Name: pod.Labels["serving.knative.dev/configuration"], Namespace: req.Namespace}, configuration)
 		if err != nil {
-			log.Error(err, "Error fetching service for pod")
+			log.Error(err, "Error fetching configuration for pod")
 			return ctrl.Result{}, err
 		}
 
-		service.Annotations[riserLabel("controller-observed")] = fmt.Sprint(time.Now().Unix())
-		err = r.Update(ctx, service)
+		configuration.Annotations[riserLabel("controller-observed")] = fmt.Sprint(time.Now().Unix())
+		err = r.Update(ctx, configuration)
 		if err != nil {
-			log.Error(err, "Error updating service", "service", service.Name)
+			log.Error(err, "Error updating configuration", "configuration", configuration.Name)
 		}
 	}
 
