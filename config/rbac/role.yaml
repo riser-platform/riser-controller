@@ -37,13 +37,14 @@ rules:
 - apiGroups:
   - serving.knative.dev
   resources:
-  - configuration
+  - configurations
   - services
   - revisions
   - routes
   verbs:
   - get
   - list
+  - update
   - watch
 - apiGroups:
   - ""
