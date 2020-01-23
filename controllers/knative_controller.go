@@ -185,7 +185,7 @@ func createStatusFromKnative(kcfg *knserving.Configuration, route *knserving.Rou
 		status.Traffic[idx] = model.DeploymentTrafficStatus{
 			RevisionName: traffic.RevisionName,
 			Percent:      traffic.Percent,
-			Latest:       traffic.LatestRevision,
+			Tag:          traffic.Tag,
 		}
 	}
 	return status, nil

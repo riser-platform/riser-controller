@@ -18,13 +18,13 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mattbaird/jsonpatch v0.0.0-20171005235357-81af80346b1a // indirect
-	github.com/pkg/errors v0.8.1
-	github.com/riser-platform/riser-server/api/v1/model v0.0.0-20191231160837-2bc69123b600
-	github.com/riser-platform/riser/sdk v0.0.0-20191231161402-420e3e7c3087
+	github.com/pkg/errors v0.9.1
+	github.com/riser-platform/riser-server/api/v1/model v0.0.6
+	github.com/riser-platform/riser/sdk v0.0.19
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472 // indirect
 	k8s.io/api v0.0.0-20190830074751-c43c3e1d5a79
-	k8s.io/apimachinery v0.17.0
+	k8s.io/apimachinery v0.17.2
 	k8s.io/client-go v11.0.1-0.20190409021438-1a26190bd76a+incompatible
 	knative.dev/pkg v0.0.0-20191107185656-884d50f09454 // indirect
 	knative.dev/serving v0.10.0

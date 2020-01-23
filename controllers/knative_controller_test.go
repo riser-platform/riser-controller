@@ -35,11 +35,12 @@ func Test_createStatusFromKnative(t *testing.T) {
 					knserving.TrafficTarget{
 						RevisionName: "rev0",
 						Percent:      util.PtrInt64(90),
+						Tag:          "r0",
 					},
 					knserving.TrafficTarget{
-						RevisionName:   "rev1",
-						LatestRevision: util.PtrBool(true),
-						Percent:        util.PtrInt64(10),
+						RevisionName: "rev1",
+						Percent:      util.PtrInt64(10),
+						Tag:          "r1",
 					},
 				},
 			},
@@ -123,8 +124,8 @@ func Test_createStatusFromKnative(t *testing.T) {
 	require.Len(t, result.Traffic, 2)
 	assert.Equal(t, "rev0", result.Traffic[0].RevisionName)
 	assert.Equal(t, int64(90), *result.Traffic[0].Percent)
-	assert.Nil(t, result.Traffic[0].Latest)
+	assert.Equal(t, "r0", result.Traffic[0].Tag)
 	assert.Equal(t, "rev1", result.Traffic[1].RevisionName)
 	assert.Equal(t, int64(10), *result.Traffic[1].Percent)
-	assert.True(t, *result.Traffic[1].Latest)
+	assert.Equal(t, "r1", result.Traffic[1].Tag)
 }
