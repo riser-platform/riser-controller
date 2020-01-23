@@ -43,6 +43,9 @@ type RolloutStatus struct {
 // GetRolloutStatus returns a message describing deployment status, and a status indicating the state of the rollout.
 // Currently does not support checking the desired revision
 func GetRolloutStatus(deployment *appsv1.Deployment) RolloutStatus {
+	if deployment == nil {
+		return RolloutStatus{Status: model.RolloutStatusUnknown}
+	}
 	if deployment.Generation <= deployment.Status.ObservedGeneration {
 		cond := GetDeploymentCondition(deployment.Status, appsv1.DeploymentProgressing)
 		if cond != nil && cond.Reason == TimedOutReason {

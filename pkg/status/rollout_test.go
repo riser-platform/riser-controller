@@ -45,7 +45,7 @@ var rolloutTests = []struct {
 				Name: "myDeployment",
 			},
 			Spec: appsv1.DeploymentSpec{
-				Replicas: util.Int32Ptr(3),
+				Replicas: util.PtrInt32(3),
 			},
 			Status: appsv1.DeploymentStatus{
 				UpdatedReplicas: 1,

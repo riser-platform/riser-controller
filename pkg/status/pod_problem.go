@@ -1,27 +1,25 @@
 package status
 
 import (
-	"fmt"
-
 	"github.com/riser-platform/riser-server/api/v1/model"
 
 	corev1 "k8s.io/api/core/v1"
 )
 
-type PodProblem struct {
+type Problem struct {
 	Message string
 }
 
 type ProblemList struct {
-	problemMap map[string]model.DeploymentStatusProblem
+	problemMap map[string]model.StatusProblem
 }
 
 type PodProblemProbe interface {
-	GetProblem(pod *corev1.Pod) *PodProblem
+	GetProblem(pod *corev1.Pod) *Problem
 }
 
-func (list *ProblemList) Items() []model.DeploymentStatusProblem {
-	items := []model.DeploymentStatusProblem{}
+func (list *ProblemList) Items() []model.StatusProblem {
+	items := []model.StatusProblem{}
 	for _, item := range list.problemMap {
 		items = append(items, item)
 	}
@@ -31,13 +29,13 @@ func (list *ProblemList) Items() []model.DeploymentStatusProblem {
 
 func (list *ProblemList) AddProblem(message string) {
 	if list.problemMap == nil {
-		list.problemMap = map[string]model.DeploymentStatusProblem{}
+		list.problemMap = map[string]model.StatusProblem{}
 	}
 	if problem, found := list.problemMap[message]; found {
 		problem.Count = problem.Count + 1
 		list.problemMap[message] = problem
 	} else {
-		list.problemMap[message] = model.DeploymentStatusProblem{Count: 1, Message: message}
+		list.problemMap[message] = model.StatusProblem{Count: 1, Message: message}
 	}
 }
 
@@ -53,7 +51,6 @@ func getPodProblems(pods *corev1.PodList, probes ...PodProblemProbe) *ProblemLis
 	podProblems := ProblemList{}
 	if pods != nil {
 		for _, pod := range pods.Items {
-			fmt.Printf("%+v", pod.GetOwnerReferences())
 			for _, probe := range probes {
 				problem := probe.GetProblem(&pod)
 				if problem != nil {

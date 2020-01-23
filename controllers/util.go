@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
+	"strconv"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -23,4 +25,12 @@ func riserAppFilter(objectMeta metav1.ObjectMeta) client.MatchingLabels {
 		riserLabel("deployment"): objectMeta.Labels[riserLabel("deployment")],
 	}
 	return labels
+}
+
+func getRiserGeneration(objectMeta metav1.ObjectMeta) (int64, error) {
+	v, err := strconv.ParseInt(objectMeta.Annotations[riserLabel("generation")], 10, 64)
+	if err != nil {
+		return -1, errors.Wrap(err, fmt.Sprintf("Error parsing riser generation from annotation: %s", riserLabel("generation")))
+	}
+	return v, nil
 }
