@@ -18,7 +18,7 @@ func Test_createStatusFromKnative(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "mydep",
 			Annotations: map[string]string{
-				riserLabel("generation"): "1",
+				riserLabel("revision"): "1",
 			},
 		},
 		Status: knserving.ConfigurationStatus{
@@ -55,7 +55,7 @@ func Test_createStatusFromKnative(t *testing.T) {
 						riserLabel("deployment"): "mydep",
 					},
 					Annotations: map[string]string{
-						riserLabel("generation"): "0",
+						riserLabel("revision"): "0",
 					},
 				},
 				Spec: knserving.RevisionSpec{
@@ -79,7 +79,7 @@ func Test_createStatusFromKnative(t *testing.T) {
 						riserLabel("deployment"): "mydep",
 					},
 					Annotations: map[string]string{
-						riserLabel("generation"): "1",
+						riserLabel("revision"): "1",
 					},
 				},
 				Spec: knserving.RevisionSpec{
@@ -105,7 +105,7 @@ func Test_createStatusFromKnative(t *testing.T) {
 	result, err := createStatusFromKnative(cfg, route, revisions)
 
 	require.NoError(t, err)
-	assert.Equal(t, int64(1), result.ObservedRiserGeneration)
+	assert.Equal(t, int64(1), result.ObservedRiserRevision)
 	assert.Equal(t, "rev1", result.LatestCreatedRevisionName)
 	assert.Equal(t, "rev0", result.LatestReadyRevisionName)
 
@@ -114,11 +114,11 @@ func Test_createStatusFromKnative(t *testing.T) {
 	assert.Equal(t, "rev0", result.Revisions[0].Name)
 	assert.Equal(t, int32(0), result.Revisions[0].AvailableReplicas)
 	assert.Equal(t, "my/image:0.0.1", result.Revisions[0].DockerImage)
-	assert.Equal(t, int64(0), result.Revisions[0].RiserGeneration)
+	assert.Equal(t, int64(0), result.Revisions[0].RiserRevision)
 	assert.Equal(t, "rev1", result.Revisions[1].Name)
 	assert.Equal(t, int32(1), result.Revisions[1].AvailableReplicas)
 	assert.Equal(t, "my/image:0.0.2", result.Revisions[1].DockerImage)
-	assert.Equal(t, int64(1), result.Revisions[1].RiserGeneration)
+	assert.Equal(t, int64(1), result.Revisions[1].RiserRevision)
 
 	// Traffic
 	require.Len(t, result.Traffic, 2)

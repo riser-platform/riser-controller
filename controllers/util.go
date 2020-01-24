@@ -27,10 +27,10 @@ func riserAppFilter(objectMeta metav1.ObjectMeta) client.MatchingLabels {
 	return labels
 }
 
-func getRiserGeneration(objectMeta metav1.ObjectMeta) (int64, error) {
-	v, err := strconv.ParseInt(objectMeta.Annotations[riserLabel("generation")], 10, 64)
+func getRiserRevision(objectMeta metav1.ObjectMeta) (int64, error) {
+	v, err := strconv.ParseInt(objectMeta.Annotations[riserLabel("revision")], 10, 64)
 	if err != nil {
-		return -1, errors.Wrap(err, fmt.Sprintf("Error parsing riser generation from annotation: %s", riserLabel("generation")))
+		return -1, errors.Wrap(err, fmt.Sprintf("Error parsing riser revision from annotation: %s", riserLabel("revision")))
 	}
 	return v, nil
 }

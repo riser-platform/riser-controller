@@ -85,7 +85,7 @@ func (r *KNativeReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 		err = r.RiserClient.Deployments.SaveStatus(req.Name, r.Config.Stage, status)
 		if err == nil {
-			log.Info("Updated deployment status", "riserGeneration", status.ObservedRiserGeneration)
+			log.Info("Updated deployment status", "riserRevision", status.ObservedRiserRevision)
 		} else {
 			log.Error(err, "Error saving status")
 			return ctrl.Result{}, err
@@ -144,14 +144,14 @@ func (r *KNativeReconciler) getRevisions(kcfg *knserving.Configuration) ([]revis
 }
 
 func createStatusFromKnative(kcfg *knserving.Configuration, route *knserving.Route, revisions []revisionEtc) (*model.DeploymentStatusMutable, error) {
-	// TODO: check route generation and warn when there's a conflict, or consider not updating status at all
-	observedRiserGeneration, err := getRiserGeneration(kcfg.ObjectMeta)
+	// TODO: check route revision and warn when there's a conflict, or consider not updating status at all
+	observedRiserRevision, err := getRiserRevision(kcfg.ObjectMeta)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("Error getting riser generation for knative service %q", kcfg.Name))
+		return nil, errors.Wrap(err, fmt.Sprintf("Error getting riser revision for knative service %q", kcfg.Name))
 	}
 
 	status := &model.DeploymentStatusMutable{
-		ObservedRiserGeneration:   observedRiserGeneration,
+		ObservedRiserRevision:     observedRiserRevision,
 		LatestCreatedRevisionName: kcfg.Status.LatestCreatedRevisionName,
 		LatestReadyRevisionName:   kcfg.Status.LatestReadyRevisionName,
 	}
@@ -162,9 +162,9 @@ func createStatusFromKnative(kcfg *knserving.Configuration, route *knserving.Rou
 		if err != nil {
 			return nil, errors.Wrap(err, "Unable to get docker image")
 		}
-		revisionGen, err := getRiserGeneration(revision.ObjectMeta)
+		revisionGen, err := getRiserRevision(revision.ObjectMeta)
 		if err != nil {
-			return nil, errors.Wrap(err, fmt.Sprintf("Error getting riser generation for revision %q", revision.ObjectMeta.Name))
+			return nil, errors.Wrap(err, fmt.Sprintf("Error getting riser revision for revision %q", revision.ObjectMeta.Name))
 		}
 
 		rolloutStatus := probe.GetRevisionStatus(&revision.Revision)
@@ -173,7 +173,7 @@ func createStatusFromKnative(kcfg *knserving.Configuration, route *knserving.Rou
 			Name:                revision.Name,
 			AvailableReplicas:   getAvailableReplicasFromDeployment(revision.Deployment),
 			DockerImage:         dockerImage,
-			RiserGeneration:     revisionGen,
+			RiserRevision:       revisionGen,
 			RolloutStatus:       rolloutStatus.Status,
 			RolloutStatusReason: rolloutStatus.Reason,
 			Problems:            problems.Items(),
