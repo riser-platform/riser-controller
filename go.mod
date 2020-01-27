@@ -19,8 +19,8 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mattbaird/jsonpatch v0.0.0-20171005235357-81af80346b1a // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/riser-platform/riser-server/api/v1/model v0.0.7-0.20200124170529-632726c14f38
-	github.com/riser-platform/riser/sdk v0.0.20-0.20200124171321-510acdd0da28
+	github.com/riser-platform/riser-server/api/v1/model v0.0.7-0.20200126114256-d1497446eec0
+	github.com/riser-platform/riser/sdk v0.0.20-0.20200126114641-6b286d9f7e5b
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472 // indirect
 	k8s.io/api v0.0.0-20190830074751-c43c3e1d5a79

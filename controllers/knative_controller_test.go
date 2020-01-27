@@ -46,8 +46,8 @@ func Test_createStatusFromKnative(t *testing.T) {
 			},
 		},
 	}
-	revisions := []revisionEtc{
-		revisionEtc{
+	revisions := []revisionGraph{
+		revisionGraph{
 			Revision: knserving.Revision{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "rev0",
@@ -71,7 +71,7 @@ func Test_createStatusFromKnative(t *testing.T) {
 				},
 			},
 		},
-		revisionEtc{
+		revisionGraph{
 			Revision: knserving.Revision{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "rev1",

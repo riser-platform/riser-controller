@@ -136,16 +136,6 @@ func main() {
 	}).SetupWithManager(mgr)
 	exitIfError(err, "unable to create controller", "controller", "KNativeDomain")
 
-	err = (&controllers.PodReconciler{
-		Client:      mgr.GetClient(),
-		Log:         ctrl.Log.WithName("controllers").WithName("Pod"),
-		Config:      rc,
-		RiserClient: riserClient,
-	}).SetupWithManager(mgr)
-	exitIfError(err, "unable to create controller", "controller", "Pod")
-
-	// +kubebuilder:scaffold:builder
-
 	setupLog.Info("starting manager")
 	err = mgr.Start(ctrl.SetupSignalHandler())
 	exitIfError(err, "problem starting manager")

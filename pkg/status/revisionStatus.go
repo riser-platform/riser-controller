@@ -18,26 +18,33 @@ Revision Pods
 Note: Could check PodScheduled if there's limited resources?
 */
 
-// TODO: What about Pod Problems at the revision level?
-// TODO: Test
-func GetRevisionStatus(rev *knserving.Revision) RolloutStatus {
-	if len(rev.Status.Conditions) == 0 {
-		return RolloutStatus{Status: model.RolloutStatusUnknown}
-	}
+type RevisionStatus struct {
+	Status string
+	Reason string
+}
 
+// TODO: Add tests
+// TODO: This is nowhere near exhaustive. However there are multiple issues related to Revision status so there's no point in going too deep right now
+// https://github.com/knative/serving/issues/6265
+// https://github.com/knative/serving/issues/6346
+// https://github.com/knative/serving/issues/6489
+func GetRevisionStatus(rev *knserving.Revision) RevisionStatus {
 	for _, cnd := range rev.Status.Conditions {
 		if cnd.Type == "Ready" {
 			if cnd.IsUnknown() {
 				if cnd.Reason == "Deploying" {
-					return RolloutStatus{Status: model.RolloutStatusInProgress}
+					return RevisionStatus{Status: model.RevisionStatusWaiting, Reason: cnd.Message}
 				}
-				return RolloutStatus{Status: model.RolloutStatusUnknown, Reason: cnd.Message}
+				return RevisionStatus{Status: model.RevisionStatusUnknown, Reason: cnd.Message}
 			}
-			if cnd.IsFalse() {
-				return RolloutStatus{Status: model.RolloutStatusFailed, Reason: cnd.Message}
+			if cnd.IsTrue() {
+				return RevisionStatus{Status: model.RevisionStatusReady}
+			} else {
+				return RevisionStatus{Status: model.RevisionStatusUnhealthy, Reason: cnd.Message}
 			}
 		}
+		// TODO: Check ResourcesAvailable condition?
 	}
 
-	return RolloutStatus{Status: model.RolloutStatusComplete}
+	return RevisionStatus{Status: model.RevisionStatusUnknown}
 }
