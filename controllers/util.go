@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"strconv"
+
+	"github.com/pkg/errors"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -15,8 +16,8 @@ func riserLabel(labelName string) string {
 	return fmt.Sprintf("riser.dev/%s", labelName)
 }
 
-func isRiserApp(objectMeta metav1.ObjectMeta) bool {
-	_, b := objectMeta.Labels[riserLabel("app")]
+func isRiserApp(obj metav1.Object) bool {
+	_, b := obj.GetLabels()[riserLabel("app")]
 	return b
 }
 

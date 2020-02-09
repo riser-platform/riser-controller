@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"riser-controller/pkg/runtime"
 	"riser-controller/pkg/status"
-	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -20,6 +19,8 @@ import (
 	knserving "knative.dev/serving/pkg/apis/serving/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 )
 
 type KNativeConfigurationReconciler struct {
@@ -51,6 +52,7 @@ type revisionGraph struct {
 func (r *KNativeConfigurationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&knserving.Configuration{}).
+		WithEventFilter(createUpdateRiserFilter()).
 		Owns(&appsv1.Deployment{}).
 		Complete(r)
 }
@@ -58,6 +60,7 @@ func (r *KNativeConfigurationReconciler) SetupWithManager(mgr ctrl.Manager) erro
 func (r *KNativeRouteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&knserving.Route{}).
+		WithEventFilter(createUpdateRiserFilter()).
 		Complete(r)
 }
 
@@ -69,40 +72,46 @@ func (r *KNativeReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	err := r.Get(ctx, req.NamespacedName, configuration)
 	if err != nil {
+		if kerrors.IsNotFound(err) {
+			log.Info("Object not found", "NamespacedName", req.NamespacedName)
+			return ctrl.Result{}, nil
+		}
 		log.Error(err, "Unable to get knative configuration")
 		return ctrl.Result{}, err
 	}
 
-	if isRiserApp(configuration.ObjectMeta) {
-		revisions, err := r.getRevisions(configuration)
-		if err != nil {
-			// This happens during a brand new revision.
-			if kerrors.IsNotFound(err) {
-				return ctrl.Result{Requeue: true, RequeueAfter: 5 * time.Second}, err
-			}
-			return ctrl.Result{}, err
+	revisions, err := r.getRevisions(configuration)
+	if err != nil {
+		if kerrors.IsNotFound(err) {
+			log.Info("Object not found", "NamespacedName", req.NamespacedName)
+			return ctrl.Result{}, nil
 		}
+		return ctrl.Result{}, err
+	}
 
-		route := &knserving.Route{}
-		err = r.Get(ctx, req.NamespacedName, route)
-		if err != nil {
-			log.Error(err, "Unable to get knative route")
-			return ctrl.Result{}, err
+	route := &knserving.Route{}
+	err = r.Get(ctx, req.NamespacedName, route)
+	if err != nil {
+		if kerrors.IsNotFound(err) {
+			log.Info("Object not found", "NamespacedName", req.NamespacedName)
+			return ctrl.Result{}, nil
 		}
+		log.Error(err, "Unable to get knative route")
+		return ctrl.Result{}, err
+	}
 
-		status, err := createStatusFromKnative(configuration, route, revisions)
-		if err != nil {
-			log.Error(err, "Unable to determine configuration status")
-			return ctrl.Result{}, err
-		}
+	status, err := createStatusFromKnative(configuration, route, revisions)
+	if err != nil {
+		log.Error(err, "Unable to determine configuration status")
+		return ctrl.Result{}, err
+	}
 
-		err = r.RiserClient.Deployments.SaveStatus(req.Name, r.Config.Stage, status)
-		if err == nil {
-			log.Info("Updated deployment status", "riserRevision", status.ObservedRiserRevision)
-		} else {
-			log.Error(err, "Error saving status")
-			return ctrl.Result{Requeue: true}, err
-		}
+	err = r.RiserClient.Deployments.SaveStatus(req.Name, r.Config.Stage, status)
+	if err == nil {
+		log.Info("Updated deployment status", "riserRevision", status.ObservedRiserRevision)
+	} else {
+		log.Error(err, "Error saving status")
+		return ctrl.Result{Requeue: true}, err
 	}
 
 	return ctrl.Result{}, nil
@@ -121,6 +130,9 @@ func (r *KNativeReconciler) getRevisions(kcfg *knserving.Configuration) ([]revis
 	for _, revision := range revisionList.Items {
 		deployment, err := r.getDeployment(&revision)
 		if err != nil {
+			if kerrors.IsNotFound(err) {
+				return nil, err
+			}
 			return nil, errors.Wrap(err, "error getting deployment for revision")
 		}
 		revisions = append(revisions, revisionGraph{
@@ -205,4 +217,15 @@ func (r *KNativeReconciler) getDeployment(revision *knserving.Revision) (*appsv1
 	}
 
 	return deployment, nil
+}
+
+func createUpdateRiserFilter() predicate.Funcs {
+	return predicate.Funcs{
+		CreateFunc: func(evt event.CreateEvent) bool {
+			return isRiserApp(evt.Meta)
+		},
+		UpdateFunc: func(evt event.UpdateEvent) bool {
+			return isRiserApp(evt.MetaNew)
+		},
+	}
 }

@@ -121,12 +121,12 @@ func main() {
 	err = (&controllers.KNativeRouteReconciler{
 		KNativeReconciler: controllers.KNativeReconciler{
 			Client:      mgr.GetClient(),
-			Log:         ctrl.Log.WithName("controllers").WithName("KNativeConfiguration"),
+			Log:         ctrl.Log.WithName("controllers").WithName("KNativeRouteReconciler"),
 			Config:      rc,
 			RiserClient: riserClient,
 		},
 	}).SetupWithManager(mgr)
-	exitIfError(err, "unable to create controller", "controller", "KNativeConfiguration")
+	exitIfError(err, "unable to create controller", "controller", "KNativeRouteReconciler")
 
 	err = (&controllers.KNativeDomainReconciler{
 		Client:      mgr.GetClient(),
