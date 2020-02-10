@@ -148,7 +148,7 @@ func createStatusFromKnative(kcfg *knserving.Configuration, route *knserving.Rou
 	// TODO: check route revision and warn when there's a conflict, or consider not updating status at all
 	observedRiserRevision, err := getRiserRevision(kcfg.ObjectMeta)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("Error getting riser revision for knative service %q", kcfg.Name))
+		return nil, errors.Wrap(err, fmt.Sprintf("Error getting riser revision for knative configuration %q", kcfg.Name))
 	}
 
 	riserStatus := &model.DeploymentStatusMutable{
