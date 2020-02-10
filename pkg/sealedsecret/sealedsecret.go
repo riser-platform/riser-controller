@@ -13,6 +13,8 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+const retryOnFailureSeconds = 5 * time.Second
+
 type refresher struct {
 	stageName           string
 	controllerName      string
@@ -34,7 +36,7 @@ type refresher struct {
 	days, it's better to configure the sealed secrets controller to a shorter duration (e.g. 15 days) than to change the refresh frequency.
 
 	If timely cert refreshing is critical it's important to setup monitoring. Errors other than on startup are logged but are not considered fatal.
-	Other operations such	as reporting status should not be affected. The only case where this is truely is when there is a new stage that does not
+	Other operations such	as reporting status should not be affected. The only case where this is truly is when there is a new stage that does not
 	have any cert, in	which case no secrets can be saved.
 
 	Read https://github.com/bitnami-labs/sealed-secrets#secret-rotation for more info.
@@ -82,6 +84,8 @@ func (r *refresher) refresh() {
 	}
 
 	if err != nil {
-		r.log.Error(err, "Error setting stage config")
+		r.log.Error(err, "Error setting stage config. Retrying...")
+		time.AfterFunc(retryOnFailureSeconds, r.refresh)
 	}
+
 }
