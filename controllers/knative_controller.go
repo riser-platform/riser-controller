@@ -73,7 +73,7 @@ func (r *KNativeReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	err := r.Get(ctx, req.NamespacedName, configuration)
 	if err != nil {
 		if kerrors.IsNotFound(err) {
-			log.Info("Object not found", "NamespacedName", req.NamespacedName)
+			log.Info("Configuration not found", "NamespacedName", req.NamespacedName)
 			return ctrl.Result{}, nil
 		}
 		log.Error(err, "Unable to get knative configuration")
@@ -82,18 +82,16 @@ func (r *KNativeReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	revisions, err := r.getRevisions(configuration)
 	if err != nil {
-		if kerrors.IsNotFound(err) {
-			log.Info("Object not found", "NamespacedName", req.NamespacedName)
-			return ctrl.Result{}, nil
+		if !kerrors.IsNotFound(err) {
+			return ctrl.Result{}, err
 		}
-		return ctrl.Result{}, err
 	}
 
 	route := &knserving.Route{}
 	err = r.Get(ctx, req.NamespacedName, route)
 	if err != nil {
 		if kerrors.IsNotFound(err) {
-			log.Info("Object not found", "NamespacedName", req.NamespacedName)
+			log.Info("Route not found", "NamespacedName", req.NamespacedName)
 			return ctrl.Result{}, nil
 		}
 		log.Error(err, "Unable to get knative route")
@@ -129,10 +127,7 @@ func (r *KNativeReconciler) getRevisions(kcfg *knserving.Configuration) ([]revis
 	revisions := []revisionGraph{}
 	for _, revision := range revisionList.Items {
 		deployment, err := r.getDeployment(&revision)
-		if err != nil {
-			if kerrors.IsNotFound(err) {
-				return nil, err
-			}
+		if err != nil && !kerrors.IsNotFound(err) {
 			return nil, errors.Wrap(err, "error getting deployment for revision")
 		}
 		revisions = append(revisions, revisionGraph{
