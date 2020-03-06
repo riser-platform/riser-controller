@@ -11,12 +11,12 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mattbaird/jsonpatch v0.0.0-20171005235357-81af80346b1a // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/riser-platform/riser-server/api/v1/model v0.0.7-0.20200127153515-57dc1efd6b94
-	github.com/riser-platform/riser/sdk v0.0.20-0.20200127154134-2f584cc5eabf
+	github.com/riser-platform/riser-server/api/v1/model v0.0.7-0.20200303170754-4348ed7c0671
+	github.com/riser-platform/riser/sdk v0.0.20-0.20200305110616-1204b13e50ba
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472 // indirect
 	k8s.io/api v0.0.0-20190918155943-95b840bb6a1f
-	k8s.io/apimachinery v0.17.2
+	k8s.io/apimachinery v0.17.3
 	k8s.io/client-go v0.0.0-20190918160344-1fbdaa4c8d90
 	knative.dev/pkg v0.0.0-20191107185656-884d50f09454
 	knative.dev/serving v0.10.0
