@@ -3,7 +3,7 @@ package sealedsecret
 import (
 	"time"
 
-	"github.com/riser-platform/riser/sdk"
+	"github.com/riser-platform/riser-server/pkg/sdk"
 
 	"github.com/riser-platform/riser-server/api/v1/model"
 

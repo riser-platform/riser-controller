@@ -68,5 +68,5 @@ watch:
 
 # Note: As of go 1.13 GOSUMDB returns a 410. Disabling until we figure out why.
 update-sdk:
-	GOSUMDB=off go get -u github.com/riser-platform/riser/sdk@$(SDKVERSION)
+	GOSUMDB=off go get -u github.com/riser-platform/riser-server/pkg/sdk@$(SDKVERSION)
 	go mod tidy

@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/riser-platform/riser-server/api/v1/model"
-	"github.com/riser-platform/riser/sdk"
+	"github.com/riser-platform/riser-server/pkg/sdk"
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/riser-platform/riser/sdk"
+	"github.com/riser-platform/riser-server/pkg/sdk"
 
 	"github.com/go-logr/logr"
 )

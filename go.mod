@@ -12,7 +12,7 @@ require (
 	github.com/mattbaird/jsonpatch v0.0.0-20171005235357-81af80346b1a // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/riser-platform/riser-server/api/v1/model v0.0.10
-	github.com/riser-platform/riser/sdk v0.0.30
+	github.com/riser-platform/riser-server/pkg/sdk v0.0.32-pre2
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472 // indirect
 	k8s.io/api v0.0.0-20190918155943-95b840bb6a1f

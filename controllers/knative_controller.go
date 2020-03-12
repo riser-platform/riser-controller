@@ -14,7 +14,7 @@ import (
 	"github.com/riser-platform/riser-server/api/v1/model"
 
 	"github.com/go-logr/logr"
-	"github.com/riser-platform/riser/sdk"
+	"github.com/riser-platform/riser-server/pkg/sdk"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	knserving "knative.dev/serving/pkg/apis/serving/v1"
 	ctrl "sigs.k8s.io/controller-runtime"

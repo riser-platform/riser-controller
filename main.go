@@ -23,7 +23,7 @@ import (
 	"riser-controller/pkg/sealedsecret"
 	"time"
 
-	"github.com/riser-platform/riser/sdk"
+	"github.com/riser-platform/riser-server/pkg/sdk"
 
 	corev1 "k8s.io/api/core/v1"
 
