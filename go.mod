@@ -9,7 +9,6 @@ require (
 	github.com/google/go-containerregistry v0.0.0-20191108172333-79629ba8e9a1 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/mattbaird/jsonpatch v0.0.0-20171005235357-81af80346b1a // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/riser-platform/riser-server/api/v1/model v0.0.10
 	github.com/riser-platform/riser-server/pkg/sdk v0.0.32
@@ -18,7 +17,7 @@ require (
 	k8s.io/api v0.0.0-20190918155943-95b840bb6a1f
 	k8s.io/apimachinery v0.17.3
 	k8s.io/client-go v0.0.0-20190918160344-1fbdaa4c8d90
-	knative.dev/pkg v0.0.0-20191107185656-884d50f09454
-	knative.dev/serving v0.10.0
+	knative.dev/pkg v0.0.0-20200414233146-0eed424fa4ee
+	knative.dev/serving v0.14.0
 	sigs.k8s.io/controller-runtime v0.4.0
 )
