@@ -13,11 +13,10 @@ require (
 	github.com/riser-platform/riser-server/api/v1/model v0.0.10
 	github.com/riser-platform/riser-server/pkg/sdk v0.0.32
 	github.com/stretchr/testify v1.4.0
-	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472 // indirect
-	k8s.io/api v0.0.0-20190918155943-95b840bb6a1f
+	k8s.io/api v0.17.2
 	k8s.io/apimachinery v0.17.3
-	k8s.io/client-go v0.0.0-20190918160344-1fbdaa4c8d90
+	k8s.io/client-go v0.17.2
 	knative.dev/pkg v0.0.0-20200414233146-0eed424fa4ee
 	knative.dev/serving v0.14.0
-	sigs.k8s.io/controller-runtime v0.4.0
+	sigs.k8s.io/controller-runtime v0.5.2
 )
