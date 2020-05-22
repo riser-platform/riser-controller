@@ -16,7 +16,7 @@ import (
 const retryOnFailureSeconds = 5 * time.Second
 
 type refresher struct {
-	stageName           string
+	environmentName     string
 	controllerName      string
 	controllerNamespace string
 	log                 logr.Logger
@@ -36,18 +36,18 @@ type refresher struct {
 	days, it's better to configure the sealed secrets controller to a shorter duration (e.g. 15 days) than to change the refresh frequency.
 
 	If timely cert refreshing is critical it's important to setup monitoring. Errors other than on startup are logged but are not considered fatal.
-	Other operations such	as reporting status should not be affected. The only case where this is truly is when there is a new stage that does not
+	Other operations such	as reporting status should not be affected. The only case where this is truly is when there is a new environment that does not
 	have any cert, in	which case no secrets can be saved.
 
 	Read https://github.com/bitnami-labs/sealed-secrets#secret-rotation for more info.
 */
-func StartCertRefresher(kubeConfig *rest.Config, riserClient *sdk.Client, stageName string, controllerName string, controllerNamespace string, refreshInterval time.Duration, log logr.Logger) error {
+func StartCertRefresher(kubeConfig *rest.Config, riserClient *sdk.Client, environmentName string, controllerName string, controllerNamespace string, refreshInterval time.Duration, log logr.Logger) error {
 	client, err := corev1Client.NewForConfig(kubeConfig)
 	if err != nil {
 		return errors.Wrap(err, "Unable to create rest client for sealed secret cert refresher")
 	}
 	refresher := refresher{
-		stageName:           stageName,
+		environmentName:     environmentName,
 		controllerName:      controllerName,
 		controllerNamespace: controllerNamespace,
 		log:                 log,
@@ -74,17 +74,17 @@ func (r *refresher) refresh() {
 	certBytes, err := r.kubeClient.Services(r.controllerNamespace).
 		ProxyGet("http", r.controllerName, "", "/v1/cert.pem", nil).
 		DoRaw()
-	config := &model.StageConfig{
+	config := &model.EnvironmentConfig{
 		SealedSecretCert: certBytes,
 	}
 
 	if err == nil {
 		r.log.Info("Updating cert for sealed secrets")
-		err = r.riserClient.Stages.SetConfig(r.stageName, config)
+		err = r.riserClient.Environments.SetConfig(r.environmentName, config)
 	}
 
 	if err != nil {
-		r.log.Error(err, "Error setting stage config. Retrying...")
+		r.log.Error(err, "Error setting environment config. Retrying...")
 		time.AfterFunc(retryOnFailureSeconds, r.refresh)
 	}
 

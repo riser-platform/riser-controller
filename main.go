@@ -90,7 +90,7 @@ func main() {
 	exitIfError(err, "Unable to initialize riser client")
 
 	serverPingDuration := time.Second * time.Duration(rc.ServerPingSeconds)
-	ping.StartNewPinger(riserClient, ctrl.Log.WithName("pinger"), rc.Stage, serverPingDuration)
+	ping.StartNewPinger(riserClient, ctrl.Log.WithName("pinger"), rc.Environment, serverPingDuration)
 
 	sealedSecretRefreshDuration, err := time.ParseDuration(rc.SealedsecretCertRefreshDuration)
 	exitIfError(err, "Unable to parse sealed secret cert refresh duration")
@@ -99,7 +99,7 @@ func main() {
 		err = sealedsecret.StartCertRefresher(
 			ctrl.GetConfigOrDie(),
 			riserClient,
-			rc.Stage,
+			rc.Environment,
 			rc.SealedsecretControllerName,
 			rc.SealedsecretNamespace,
 			sealedSecretRefreshDuration,

@@ -104,7 +104,7 @@ func (r *KNativeReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
-	err = r.RiserClient.Deployments.SaveStatus(req.Name, req.Namespace, r.Config.Stage, status)
+	err = r.RiserClient.Deployments.SaveStatus(req.Name, req.Namespace, r.Config.Environment, status)
 	if err == nil {
 		log.Info("Updated deployment status", "riserRevision", status.ObservedRiserRevision)
 	} else {

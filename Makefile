@@ -62,9 +62,9 @@ CONTROLLER_GEN=$(shell which controller-gen)
 endif
 
 # compile and run unit tests on change. Always "make test" before comitting.
-# requires filewatcher and gotestsum
+# requires fswatch and gotestsum
 watch:
-	filewatcher gotestsum
+	fswatch -l 1 -o . | xargs -n1 -I{} gotestsum
 
 # Note: As of go 1.13 GOSUMDB returns a 410. Disabling until we figure out why.
 update-sdk:

@@ -41,11 +41,11 @@ func (r *KNativeDomainReconciler) Reconcile(req ctrl.Request) (ctrl.Result, erro
 
 	for key := range cm.Data {
 		// Select the first key that does not start with an underscore (e.g. "_example").
-		// This is an intentional Riser limitation for now (single domain per stage/cluster). In the future we should read the selector
+		// This is an intentional Riser limitation for now (single domain per environment/cluster). In the future we should read the selector
 		// with a riser specific label
 		if key[:1] != "_" {
-			log.Info(fmt.Sprintf("Found custom domain %q. Updating stage config...", key))
-			err = r.RiserClient.Stages.SetConfig(r.Config.Stage, &model.StageConfig{
+			log.Info(fmt.Sprintf("Found custom domain %q. Updating environment config...", key))
+			err = r.RiserClient.Environments.SetConfig(r.Config.Environment, &model.EnvironmentConfig{
 				PublicGatewayHost: key,
 			})
 			if err != nil {

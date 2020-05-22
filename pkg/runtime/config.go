@@ -5,7 +5,7 @@ type Config struct {
 	/* Required  */
 	ServerURL    string `split_words:"true" required:"true"`
 	ServerApikey string `split_words:"true" required:"true"`
-	Stage        string `split_words:"true" required:"true"`
+	Environment  string `split_words:"true" required:"true"`
 
 	/* Optional */
 	ServerPingSeconds               int    `split_words:"true" default:"10"`
