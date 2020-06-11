@@ -90,7 +90,12 @@ func main() {
 	exitIfError(err, "Unable to initialize riser client")
 
 	serverPingDuration := time.Second * time.Duration(rc.ServerPingSeconds)
-	ping.StartNewPinger(riserClient, ctrl.Log.WithName("pinger"), rc.Environment, serverPingDuration)
+	err = ping.StartNewPinger(riserClient, ctrl.Log.WithName("pinger"), rc.Environment, serverPingDuration)
+	// TODO: We need a better solution for controller->server bootstrapping. We probably need a lease model as well as a per cluster key.
+	// We exit early to take advantage of k8s backoff retry. This mitigates race conditions during initial setup of the stack.
+	if err != nil {
+		exitIfError(err, "Unable to reach server")
+	}
 
 	sealedSecretRefreshDuration, err := time.ParseDuration(rc.SealedsecretCertRefreshDuration)
 	exitIfError(err, "Unable to parse sealed secret cert refresh duration")
