@@ -14,8 +14,8 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/openzipkin/zipkin-go v0.2.2 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/riser-platform/riser-server/api/v1/model v0.0.11-0.20200522094011-3be589845297
-	github.com/riser-platform/riser-server/pkg/sdk v0.0.34-0.20200522094011-3be589845297
+	github.com/riser-platform/riser-server/api/v1/model v0.0.16
+	github.com/riser-platform/riser-server/pkg/sdk v0.0.39
 	github.com/stretchr/testify v1.4.0
 	k8s.io/api v0.17.2
 	k8s.io/apimachinery v0.17.3
