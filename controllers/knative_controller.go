@@ -73,7 +73,7 @@ func (r *KNativeReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	err := r.Get(ctx, req.NamespacedName, configuration)
 	if err != nil {
 		if kerrors.IsNotFound(err) {
-			log.Info("Configuration not found", "NamespacedName", req.NamespacedName)
+			log.Info("Configuration not found")
 			return ctrl.Result{}, nil
 		}
 		log.Error(err, "Unable to get knative configuration")
@@ -91,7 +91,7 @@ func (r *KNativeReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	err = r.Get(ctx, req.NamespacedName, route)
 	if err != nil {
 		if kerrors.IsNotFound(err) {
-			log.Info("Route not found", "NamespacedName", req.NamespacedName)
+			log.Info("Route not found")
 			return ctrl.Result{}, nil
 		}
 		log.Error(err, "Unable to get knative route")
@@ -112,6 +112,16 @@ func (r *KNativeReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{Requeue: true}, err
 	}
 
+	return ctrl.Result{}, nil
+}
+
+func (r *KNativeReconciler) handleDeploymentsSaveStatusResult(log logr.Logger, observedRiserRevision int64, err error) (ctrl.Result, error) {
+	if err == nil {
+		log.Info("Saved deployment status", "observedRiserRevision", observedRiserRevision)
+	} else {
+		log.Error(err, "Error saving deployment status", "observedRiserRevision", observedRiserRevision)
+		return ctrl.Result{Requeue: true}, err
+	}
 	return ctrl.Result{}, nil
 }
 

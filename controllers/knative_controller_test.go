@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"errors"
 	"riser-controller/pkg/util"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 	appsv1 "k8s.io/api/apps/v1"
 	corea1 "k8s.io/api/core/v1"
+	ctrl "sigs.k8s.io/controller-runtime"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -129,4 +131,40 @@ func Test_createStatusFromKnative(t *testing.T) {
 	assert.Equal(t, "rev1", result.Traffic[1].RevisionName)
 	assert.Equal(t, int64(10), *result.Traffic[1].Percent)
 	assert.Equal(t, "r1", result.Traffic[1].Tag)
+}
+
+func Test_handleDeploymentsSaveStatusResult(t *testing.T) {
+	reconciler := &KNativeReconciler{}
+	logger := &FakeLogger{
+		FakeInfoLogger: FakeInfoLogger{
+			InfoFn: func(msg string, keysAndValues ...interface{}) {
+				assert.EqualValues(t, keysAndValues[0], []interface{}{"observedRiserRevision", int64(1)})
+				assert.Equal(t, "Saved deployment status", msg)
+			},
+		},
+	}
+
+	result, err := reconciler.handleDeploymentsSaveStatusResult(logger, 1, nil)
+
+	assert.NoError(t, err)
+	assert.Equal(t, ctrl.Result{}, result)
+	assert.Equal(t, 1, logger.FakeInfoLogger.InfoCallCount)
+}
+
+func Test_handleDeploymentsSaveStatusResult_RequeueOnError(t *testing.T) {
+	reconciler := &KNativeReconciler{}
+	saveErr := errors.New("failed")
+	logger := &FakeLogger{
+		ErrorFn: func(err error, msg string, keysAndValues ...interface{}) {
+			assert.EqualValues(t, keysAndValues[0], []interface{}{"observedRiserRevision", int64(1)})
+			assert.Equal(t, saveErr, err)
+			assert.Equal(t, "Error saving deployment status", msg)
+		},
+	}
+
+	result, err := reconciler.handleDeploymentsSaveStatusResult(logger, 1, saveErr)
+
+	assert.Equal(t, err, saveErr)
+	assert.Equal(t, ctrl.Result{Requeue: true}, result)
+	assert.Equal(t, 1, logger.ErrorCallCount)
 }
