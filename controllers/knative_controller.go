@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"riser-controller/pkg/runtime"
 	"riser-controller/pkg/status"
 
@@ -104,21 +105,18 @@ func (r *KNativeReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
-	err = r.RiserClient.Deployments.SaveStatus(req.Name, req.Namespace, r.Config.Environment, status)
-	if err == nil {
-		log.Info("Updated deployment status", "riserRevision", status.ObservedRiserRevision)
-	} else {
-		log.Error(err, "Error saving status")
-		return ctrl.Result{Requeue: true}, err
-	}
-
-	return ctrl.Result{}, nil
+	statusCode, err := r.RiserClient.Deployments.SaveStatus(req.Name, req.Namespace, r.Config.Environment, status)
+	return r.handleDeploymentsSaveStatusResult(log, status.ObservedRiserRevision, statusCode, err)
 }
 
-func (r *KNativeReconciler) handleDeploymentsSaveStatusResult(log logr.Logger, observedRiserRevision int64, err error) (ctrl.Result, error) {
+func (r *KNativeReconciler) handleDeploymentsSaveStatusResult(log logr.Logger, observedRiserRevision int64, statusCode int, err error) (ctrl.Result, error) {
 	if err == nil {
 		log.Info("Saved deployment status", "observedRiserRevision", observedRiserRevision)
 	} else {
+		if statusCode == http.StatusConflict {
+			log.Error(err, "Error saving deployment status: conflict", "observedRiserRevision", observedRiserRevision)
+			return ctrl.Result{}, nil
+		}
 		log.Error(err, "Error saving deployment status", "observedRiserRevision", observedRiserRevision)
 		return ctrl.Result{Requeue: true}, err
 	}

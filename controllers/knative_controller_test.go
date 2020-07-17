@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"net/http"
 	"riser-controller/pkg/util"
 	"testing"
 
@@ -144,7 +145,7 @@ func Test_handleDeploymentsSaveStatusResult(t *testing.T) {
 		},
 	}
 
-	result, err := reconciler.handleDeploymentsSaveStatusResult(logger, 1, nil)
+	result, err := reconciler.handleDeploymentsSaveStatusResult(logger, 1, http.StatusOK, nil)
 
 	assert.NoError(t, err)
 	assert.Equal(t, ctrl.Result{}, result)
@@ -162,9 +163,27 @@ func Test_handleDeploymentsSaveStatusResult_RequeueOnError(t *testing.T) {
 		},
 	}
 
-	result, err := reconciler.handleDeploymentsSaveStatusResult(logger, 1, saveErr)
+	result, err := reconciler.handleDeploymentsSaveStatusResult(logger, 1, http.StatusInternalServerError, saveErr)
 
 	assert.Equal(t, err, saveErr)
 	assert.Equal(t, ctrl.Result{Requeue: true}, result)
+	assert.Equal(t, 1, logger.ErrorCallCount)
+}
+
+func Test_handleDeploymentsSaveStatusResult_DoesNotRequeueOnConflict(t *testing.T) {
+	reconciler := &KNativeReconciler{}
+	saveErr := errors.New("failed")
+	logger := &FakeLogger{
+		ErrorFn: func(err error, msg string, keysAndValues ...interface{}) {
+			assert.EqualValues(t, keysAndValues[0], []interface{}{"observedRiserRevision", int64(1)})
+			assert.Equal(t, saveErr, err)
+			assert.Equal(t, "Error saving deployment status: conflict", msg)
+		},
+	}
+
+	result, err := reconciler.handleDeploymentsSaveStatusResult(logger, 1, http.StatusConflict, saveErr)
+
+	assert.NoError(t, err)
+	assert.Equal(t, ctrl.Result{}, result)
 	assert.Equal(t, 1, logger.ErrorCallCount)
 }
