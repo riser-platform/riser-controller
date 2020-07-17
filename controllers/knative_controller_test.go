@@ -1,11 +1,12 @@
 package controllers
 
 import (
-	"github.com/stretchr/testify/require"
-	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
 	"riser-controller/pkg/util"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+	appsv1 "k8s.io/api/apps/v1"
+	corea1 "k8s.io/api/core/v1"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -32,12 +33,12 @@ func Test_createStatusFromKnative(t *testing.T) {
 		Status: knserving.RouteStatus{
 			RouteStatusFields: knserving.RouteStatusFields{
 				Traffic: []knserving.TrafficTarget{
-					knserving.TrafficTarget{
+					{
 						RevisionName: "rev0",
 						Percent:      util.PtrInt64(90),
 						Tag:          "r0",
 					},
-					knserving.TrafficTarget{
+					{
 						RevisionName: "rev1",
 						Percent:      util.PtrInt64(10),
 						Tag:          "r1",
@@ -47,7 +48,7 @@ func Test_createStatusFromKnative(t *testing.T) {
 		},
 	}
 	revisions := []revisionGraph{
-		revisionGraph{
+		{
 			Revision: knserving.Revision{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "rev0",
@@ -59,19 +60,19 @@ func Test_createStatusFromKnative(t *testing.T) {
 					},
 				},
 				Spec: knserving.RevisionSpec{
-					PodSpec: corev1.PodSpec{
-						Containers: []corev1.Container{
-							corev1.Container{
+					PodSpec: corea1.PodSpec{
+						Containers: []corea1.Container{
+							{
 								Name:  "mydep",
 								Image: "my/image:0.0.1",
 							},
-							corev1.Container{Name: "istio-proxy"},
+							{Name: "istio-proxy"},
 						},
 					},
 				},
 			},
 		},
-		revisionGraph{
+		{
 			Revision: knserving.Revision{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "rev1",
@@ -83,10 +84,10 @@ func Test_createStatusFromKnative(t *testing.T) {
 					},
 				},
 				Spec: knserving.RevisionSpec{
-					PodSpec: corev1.PodSpec{
-						Containers: []corev1.Container{
-							corev1.Container{Name: "istio-proxy"},
-							corev1.Container{
+					PodSpec: corea1.PodSpec{
+						Containers: []corea1.Container{
+							{Name: "istio-proxy"},
+							{
 								Name:  "mydep",
 								Image: "my/image:0.0.2",
 							},
