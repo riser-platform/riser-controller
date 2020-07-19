@@ -14,7 +14,7 @@ require (
 	github.com/openzipkin/zipkin-go v0.2.2 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/riser-platform/riser-server/api/v1/model v0.0.16
-	github.com/riser-platform/riser-server/pkg/sdk v0.0.40
+	github.com/riser-platform/riser-server/pkg/sdk v0.0.41
 	github.com/stretchr/testify v1.6.1
 	k8s.io/api v0.17.9
 	k8s.io/apimachinery v0.17.9
