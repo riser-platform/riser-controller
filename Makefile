@@ -45,7 +45,8 @@ generate: controller-gen
 
 # Build the docker image
 docker-build:
-	docker build . -t ${IMG}:${TAG}
+	docker build . -t ${IMG}:local
+	docker tag ${IMG}:local ${IMG}:${TAG}
 
 # Push the docker image
 docker-push:
