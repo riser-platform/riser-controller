@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	appsv1 "k8s.io/api/apps/v1"
 	corea1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 
@@ -50,57 +49,48 @@ func Test_createStatusFromKnative(t *testing.T) {
 			},
 		},
 	}
-	revisions := []revisionGraph{
+	revisions := []knserving.Revision{
 		{
-			Revision: knserving.Revision{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "rev0",
-					Labels: map[string]string{
-						riserLabel("deployment"): "mydep",
-					},
-					Annotations: map[string]string{
-						riserLabel("revision"): "0",
-					},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "rev0",
+				Labels: map[string]string{
+					riserLabel("deployment"): "mydep",
 				},
-				Spec: knserving.RevisionSpec{
-					PodSpec: corea1.PodSpec{
-						Containers: []corea1.Container{
-							{
-								Name:  "mydep",
-								Image: "my/image:0.0.1",
-							},
-							{Name: "istio-proxy"},
+				Annotations: map[string]string{
+					riserLabel("revision"): "0",
+				},
+			},
+			Spec: knserving.RevisionSpec{
+				PodSpec: corea1.PodSpec{
+					Containers: []corea1.Container{
+						{
+							Name:  "mydep",
+							Image: "my/image:0.0.1",
 						},
+						{Name: "istio-proxy"},
 					},
 				},
 			},
 		},
 		{
-			Revision: knserving.Revision{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "rev1",
-					Labels: map[string]string{
-						riserLabel("deployment"): "mydep",
-					},
-					Annotations: map[string]string{
-						riserLabel("revision"): "1",
-					},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "rev1",
+				Labels: map[string]string{
+					riserLabel("deployment"): "mydep",
 				},
-				Spec: knserving.RevisionSpec{
-					PodSpec: corea1.PodSpec{
-						Containers: []corea1.Container{
-							{Name: "istio-proxy"},
-							{
-								Name:  "mydep",
-								Image: "my/image:0.0.2",
-							},
-						},
-					},
+				Annotations: map[string]string{
+					riserLabel("revision"): "1",
 				},
 			},
-			Deployment: &appsv1.Deployment{
-				Status: appsv1.DeploymentStatus{
-					AvailableReplicas: 1,
+			Spec: knserving.RevisionSpec{
+				PodSpec: corea1.PodSpec{
+					Containers: []corea1.Container{
+						{Name: "istio-proxy"},
+						{
+							Name:  "mydep",
+							Image: "my/image:0.0.2",
+						},
+					},
 				},
 			},
 		},
@@ -116,11 +106,9 @@ func Test_createStatusFromKnative(t *testing.T) {
 	// Revisions
 	require.Len(t, result.Revisions, 2)
 	assert.Equal(t, "rev0", result.Revisions[0].Name)
-	assert.Equal(t, int32(0), result.Revisions[0].AvailableReplicas)
 	assert.Equal(t, "my/image:0.0.1", result.Revisions[0].DockerImage)
 	assert.Equal(t, int64(0), result.Revisions[0].RiserRevision)
 	assert.Equal(t, "rev1", result.Revisions[1].Name)
-	assert.Equal(t, int32(1), result.Revisions[1].AvailableReplicas)
 	assert.Equal(t, "my/image:0.0.2", result.Revisions[1].DockerImage)
 	assert.Equal(t, int64(1), result.Revisions[1].RiserRevision)
 

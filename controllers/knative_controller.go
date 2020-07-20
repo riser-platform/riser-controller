@@ -8,7 +8,6 @@ import (
 	"riser-controller/pkg/status"
 
 	appsv1 "k8s.io/api/apps/v1"
-	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/pkg/errors"
 
@@ -37,11 +36,6 @@ type KNativeReconciler struct {
 	Log         logr.Logger
 	Config      runtime.Config
 	RiserClient *sdk.Client
-}
-
-type revisionGraph struct {
-	knserving.Revision
-	Deployment *appsv1.Deployment
 }
 
 // SetupWithManager functions for each type that we want to reconcile
@@ -123,7 +117,7 @@ func (r *KNativeReconciler) handleDeploymentsSaveStatusResult(log logr.Logger, o
 	return ctrl.Result{}, nil
 }
 
-func (r *KNativeReconciler) getRevisions(kcfg *knserving.Configuration) ([]revisionGraph, error) {
+func (r *KNativeReconciler) getRevisions(kcfg *knserving.Configuration) ([]knserving.Revision, error) {
 	revisionList := &knserving.RevisionList{}
 	// Filtering on app label works but ownerReference is probably the more correct approach.
 	// Couldn't quickly find how to do that so sticking with the label filter for now.
@@ -132,22 +126,18 @@ func (r *KNativeReconciler) getRevisions(kcfg *knserving.Configuration) ([]revis
 		return nil, errors.Wrap(err, "error listing revisions")
 	}
 
-	revisions := []revisionGraph{}
+	revisions := []knserving.Revision{}
 	for _, revision := range revisionList.Items {
-		deployment, err := r.getDeployment(&revision)
 		if err != nil && !kerrors.IsNotFound(err) {
 			return nil, errors.Wrap(err, "error getting deployment for revision")
 		}
-		revisions = append(revisions, revisionGraph{
-			Revision:   revision,
-			Deployment: deployment,
-		})
+		revisions = append(revisions, revision)
 	}
 
 	return revisions, nil
 }
 
-func createStatusFromKnative(kcfg *knserving.Configuration, route *knserving.Route, revisions []revisionGraph) (*model.DeploymentStatusMutable, error) {
+func createStatusFromKnative(kcfg *knserving.Configuration, route *knserving.Route, revisions []knserving.Revision) (*model.DeploymentStatusMutable, error) {
 	// TODO: check route revision and warn when there's a conflict, or consider not updating status at all
 	observedRiserRevision, err := getRiserRevision(kcfg.ObjectMeta)
 	if err != nil {
@@ -162,7 +152,7 @@ func createStatusFromKnative(kcfg *knserving.Configuration, route *knserving.Rou
 
 	riserStatus.Revisions = make([]model.DeploymentRevisionStatus, len(revisions))
 	for idx, revision := range revisions {
-		dockerImage, err := getAppDockerImageFromKnativeRevision(&revision.Revision)
+		dockerImage, err := getAppDockerImageFromKnativeRevision(&revision)
 		if err != nil {
 			return nil, errors.Wrap(err, "Unable to get docker image")
 		}
@@ -171,11 +161,10 @@ func createStatusFromKnative(kcfg *knserving.Configuration, route *knserving.Rou
 			return nil, errors.Wrap(err, fmt.Sprintf("Error getting riser revision for revision %q", revision.ObjectMeta.Name))
 		}
 
-		revisionStatus := status.GetRevisionStatus(&revision.Revision)
+		revisionStatus := status.GetRevisionStatus(&revision)
 
 		riserStatus.Revisions[idx] = model.DeploymentRevisionStatus{
 			Name:                 revision.Name,
-			AvailableReplicas:    getAvailableReplicasFromDeployment(revision.Deployment),
 			DockerImage:          dockerImage,
 			RiserRevision:        revisionGen,
 			RevisionStatus:       revisionStatus.Status,
@@ -194,14 +183,6 @@ func createStatusFromKnative(kcfg *knserving.Configuration, route *knserving.Rou
 	return riserStatus, nil
 }
 
-func getAvailableReplicasFromDeployment(deployment *appsv1.Deployment) int32 {
-	if deployment == nil {
-		return 0
-	}
-
-	return deployment.Status.AvailableReplicas
-}
-
 func getAppDockerImageFromKnativeRevision(revision *knserving.Revision) (string, error) {
 	riserDeployment := revision.Labels[riserLabel("deployment")]
 	for _, container := range revision.Spec.Containers {
@@ -210,16 +191,6 @@ func getAppDockerImageFromKnativeRevision(revision *knserving.Revision) (string,
 		}
 	}
 	return "", fmt.Errorf("Unable to find a container matching the deployment %q", riserDeployment)
-}
-
-func (r *KNativeReconciler) getDeployment(revision *knserving.Revision) (*appsv1.Deployment, error) {
-	deployment := &appsv1.Deployment{}
-	err := r.Get(context.Background(), types.NamespacedName{Name: fmt.Sprintf("%s-deployment", revision.Name), Namespace: revision.Namespace}, deployment)
-	if err != nil {
-		return nil, err
-	}
-
-	return deployment, nil
 }
 
 func createUpdateRiserFilter() predicate.Funcs {
