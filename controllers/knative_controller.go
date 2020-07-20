@@ -126,15 +126,7 @@ func (r *KNativeReconciler) getRevisions(kcfg *knserving.Configuration) ([]knser
 		return nil, errors.Wrap(err, "error listing revisions")
 	}
 
-	revisions := []knserving.Revision{}
-	for _, revision := range revisionList.Items {
-		if err != nil && !kerrors.IsNotFound(err) {
-			return nil, errors.Wrap(err, "error getting deployment for revision")
-		}
-		revisions = append(revisions, revision)
-	}
-
-	return revisions, nil
+	return revisionList.Items, nil
 }
 
 func createStatusFromKnative(kcfg *knserving.Configuration, route *knserving.Route, revisions []knserving.Revision) (*model.DeploymentStatusMutable, error) {
