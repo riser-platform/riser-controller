@@ -1,6 +1,6 @@
 module riser-controller
 
-go 1.15
+go 1.16
 
 require (
 	contrib.go.opencensus.io/exporter/ocagent v0.6.0 // indirect
