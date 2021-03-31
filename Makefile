@@ -1,4 +1,4 @@
-IMG ?= riserplatform/riser-controller
+IMG ?= ghcr.io/riser-platform/riser-controller
 TAG ?= latest
 SDKVERSION ?= main
 
@@ -45,10 +45,6 @@ generate: controller-gen
 docker-build:
 	docker build . -t ${IMG}:local
 	docker tag ${IMG}:local ${IMG}:${TAG}
-
-# Push the docker image
-docker-push:
-	docker push ${IMG}:${TAG}
 
 # find or download controller-gen
 # download controller-gen if necessary
