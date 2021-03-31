@@ -1,6 +1,6 @@
 # Build the manager binary
 FROM golang:1.16-alpine as builder
-RUN apk add --update --no-cache ca-certificates git
+RUN apk add --no-cache ca-certificates git
 
 WORKDIR /workspace
 
