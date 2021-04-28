@@ -79,6 +79,31 @@ func Test_getRevisionStatus(t *testing.T) {
 			},
 		},
 		{
+			name: "ready state is unknown and resolving digests",
+			rev: &knserving.Revision{
+				Status: knserving.RevisionStatus{
+					Status: duckv1.Status{
+						ObservedGeneration: 1,
+						Conditions: duckv1.Conditions{
+							apis.Condition{
+								Type:   "Active",
+								Status: "True",
+							},
+							apis.Condition{
+								Type:   "Ready",
+								Status: "Unknown",
+								Reason: "ResolvingDigests",
+							},
+						},
+					},
+				},
+			},
+			expected: RevisionStatus{
+				Status: model.RevisionStatusWaiting,
+				Reason: "Deploying",
+			},
+		},
+		{
 			name: "ready state is unknown",
 			rev: &knserving.Revision{
 				Status: knserving.RevisionStatus{
@@ -97,6 +122,27 @@ func Test_getRevisionStatus(t *testing.T) {
 			expected: RevisionStatus{
 				Status: model.RevisionStatusUnknown,
 				Reason: "msg",
+			},
+		},
+		{
+			name: "container is not healthy",
+			rev: &knserving.Revision{
+				Status: knserving.RevisionStatus{
+					Status: duckv1.Status{
+						ObservedGeneration: 1,
+						Conditions: duckv1.Conditions{
+							apis.Condition{
+								Type:    "ContainerHealthy",
+								Status:  "False",
+								Message: "Failed to resolve image to digest...",
+							},
+						},
+					},
+				},
+			},
+			expected: RevisionStatus{
+				Status: model.RevisionStatusUnhealthy,
+				Reason: "Failed to resolve image to digest...",
 			},
 		},
 		{
