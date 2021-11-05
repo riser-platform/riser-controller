@@ -6,8 +6,11 @@ SDKVERSION ?= main
 all: test
 
 # Run tests
-test: fmt lint
+test: fmt tidy lint
 	go test ./...
+
+tidy:
+	go mod tidy
 
 # Build manager binary
 manager: generate fmt lint
@@ -43,8 +46,8 @@ generate: controller-gen
 
 # Build the docker image
 docker-build:
-	docker build . -t ${IMG}:local
-	docker tag ${IMG}:local ${IMG}:${TAG}
+	docker build . -t riser-controller:local
+	docker tag riser-controller:local ${IMG}:${TAG}
 
 # find or download controller-gen
 # download controller-gen if necessary

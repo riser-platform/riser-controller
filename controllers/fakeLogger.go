@@ -29,7 +29,7 @@ func (f *FakeLogger) Error(err error, msg string, keysAndValues ...interface{}) 
 	f.ErrorFn(err, msg, keysAndValues)
 }
 
-func (*FakeLogger) V(level int) logr.InfoLogger {
+func (*FakeLogger) V(level int) logr.Logger {
 	panic("NI")
 }
 

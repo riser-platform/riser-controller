@@ -1,6 +1,7 @@
 package sealedsecret
 
 import (
+	"context"
 	"time"
 
 	"github.com/riser-platform/riser-server/pkg/sdk"
@@ -73,7 +74,7 @@ func (r *refresher) start() {
 func (r *refresher) refresh() {
 	certBytes, err := r.kubeClient.Services(r.controllerNamespace).
 		ProxyGet("http", r.controllerName, "", "/v1/cert.pem", nil).
-		DoRaw()
+		DoRaw(context.TODO())
 	config := &model.EnvironmentConfig{
 		SealedSecretCert: certBytes,
 	}

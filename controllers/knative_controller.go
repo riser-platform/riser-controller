@@ -59,8 +59,7 @@ func (r *KNativeRouteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (r *KNativeReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
+func (r *KNativeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("knative", req.NamespacedName)
 
 	configuration := &knserving.Configuration{}
@@ -188,10 +187,10 @@ func getAppDockerImageFromKnativeRevision(revision *knserving.Revision) (string,
 func createUpdateRiserFilter() predicate.Funcs {
 	return predicate.Funcs{
 		CreateFunc: func(evt event.CreateEvent) bool {
-			return isRiserApp(evt.Meta)
+			return isRiserApp(evt.Object)
 		},
 		UpdateFunc: func(evt event.UpdateEvent) bool {
-			return isRiserApp(evt.MetaNew)
+			return isRiserApp(evt.ObjectNew)
 		},
 	}
 }

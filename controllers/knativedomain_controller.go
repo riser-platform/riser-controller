@@ -27,8 +27,7 @@ type KNativeDomainReconciler struct {
 	RiserClient *sdk.Client
 }
 
-func (r *KNativeDomainReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
+func (r *KNativeDomainReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("knative domain config", req.NamespacedName)
 
 	cm := &corev1.ConfigMap{}
@@ -62,10 +61,10 @@ func (r *KNativeDomainReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&corev1.ConfigMap{}).
 		WithEventFilter(predicate.Funcs{
 			CreateFunc: func(evt event.CreateEvent) bool {
-				return filterDomainConfigMap(evt.Meta)
+				return filterDomainConfigMap(evt.Object)
 			},
 			UpdateFunc: func(evt event.UpdateEvent) bool {
-				return filterDomainConfigMap(evt.MetaNew)
+				return filterDomainConfigMap(evt.ObjectNew)
 			},
 		}).
 		Complete(r)
