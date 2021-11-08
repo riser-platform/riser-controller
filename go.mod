@@ -9,8 +9,8 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/riser-platform/riser-server/api/v1/model v0.0.16
-	github.com/riser-platform/riser-server/pkg/sdk v0.0.41
+	github.com/riser-platform/riser-server/api/v1/model v0.0.21
+	github.com/riser-platform/riser-server/pkg/sdk v0.0.48
 	github.com/stretchr/testify v1.7.0
 	k8s.io/api v0.22.2
 	k8s.io/apimachinery v0.22.2
